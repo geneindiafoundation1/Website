@@ -1805,6 +1805,25 @@ footer {
   overflow: hidden;
   background: var(--surface);
 }
+.message-item {
+  padding: 1.1rem;
+  border-bottom: 1px solid var(--line);
+}
+.message-item:last-child {
+  border-bottom: 0;
+}
+.message-item summary {
+  cursor: pointer;
+  list-style: none;
+}
+.message-item summary::-webkit-details-marker {
+  display: none;
+}
+.message-body {
+  color: var(--ink-soft);
+  margin-top: 0.7rem;
+  white-space: pre-wrap;
+}
 .row {
   display: grid;
   grid-template-columns: 1fr auto auto;

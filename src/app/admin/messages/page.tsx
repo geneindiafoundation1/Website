@@ -3,6 +3,7 @@ import { deleteMessage } from "../actions";
 import { formatDateTime } from "@/lib/content";
 import { canEdit } from "@/lib/admin-role";
 import { supabaseEnabled } from "@/lib/supabase/config";
+import { selectLive } from "@/lib/supabase/live";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -20,15 +21,16 @@ export default async function AdminMessages() {
   if (!supabaseEnabled) return <SetupNotice />;
 
   const supabase = await getServerSupabase();
-  const { data } = await supabase!
-    .from("messages")
-    .select("*")
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    // Tie-break so rows sharing a timestamp keep a fixed order between loads.
-    .order("id", { ascending: false })
-    .limit(100);
-  const rows = (data ?? []) as Row[];
+  const { data: rows, error } = await selectLive<Row>(async (filterTrashed) => {
+    let query = supabase!.from("messages").select("*");
+    if (filterTrashed) query = query.is("deleted_at", null);
+    return query
+      .order("created_at", { ascending: false })
+      // Tie-break so rows sharing a timestamp keep a fixed order between loads.
+      .order("id", { ascending: false })
+      .limit(100);
+  });
+  if (error) console.error("admin messages:", error.message);
   const editable = await canEdit();
 
   return (
@@ -39,24 +41,28 @@ export default async function AdminMessages() {
       </div>
 
       <div className="rows">
-        {rows.length === 0 ? (
+        {error ? (
+          <p className="empty">Could not load messages. Refresh and try again.</p>
+        ) : rows.length === 0 ? (
           <p className="empty">No messages yet.</p>
         ) : (
           rows.map((row) => (
-            <div key={row.id} style={{ padding: "1.1rem", borderBottom: "1px solid var(--line)" }}>
-              <div className="meta" style={{ marginBottom: ".4rem" }}>
-                <span>{row.topic}</span>
-                <span>·</span>
-                <span>{formatDateTime(row.created_at)}</span>
-              </div>
-              <div className="row-title">
-                {row.name} -{" "}
-                <a href={`mailto:${row.email}`} className="mono">
-                  {row.email}
-                </a>
-              </div>
-              <p style={{ color: "var(--ink-soft)", marginTop: ".5rem", whiteSpace: "pre-wrap" }}>
-                {row.message}
+            <details key={row.id} open className="message-item">
+              <summary>
+                <div className="meta" style={{ marginBottom: ".35rem" }}>
+                  <span>{row.topic}</span>
+                  <span>·</span>
+                  <span>{formatDateTime(row.created_at)}</span>
+                </div>
+                <div className="row-title">
+                  {row.name} - <span className="mono">{row.email}</span>
+                </div>
+              </summary>
+              <p className="message-body">
+                {row.message?.trim() ? row.message : "No message text was saved with this enquiry."}
+              </p>
+              <p className="hint" style={{ marginTop: ".45rem" }}>
+                <a href={`mailto:${row.email}`}>Reply to {row.email}</a>
               </p>
               {editable ? (
                 <form action={deleteMessage} style={{ marginTop: ".7rem" }}>
@@ -66,7 +72,7 @@ export default async function AdminMessages() {
                   </button>
                 </form>
               ) : null}
-            </div>
+            </details>
           ))
         )}
       </div>

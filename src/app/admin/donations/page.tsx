@@ -3,6 +3,7 @@ import { deleteDonation, markDonationVerified } from "../actions";
 import { formatDateTime } from "@/lib/content";
 import { canEdit } from "@/lib/admin-role";
 import { supabaseEnabled } from "@/lib/supabase/config";
+import { selectLive } from "@/lib/supabase/live";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -23,15 +24,16 @@ export default async function AdminDonations() {
   if (!supabaseEnabled) return <SetupNotice />;
 
   const supabase = await getServerSupabase();
-  const { data } = await supabase!
-    .from("donations")
-    .select("*")
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    // Tie-break so rows sharing a timestamp keep a fixed order between loads.
-    .order("id", { ascending: false })
-    .limit(200);
-  const rows = (data ?? []) as Row[];
+  const { data: rows, error } = await selectLive<Row>(async (filterTrashed) => {
+    let query = supabase!.from("donations").select("*");
+    if (filterTrashed) query = query.is("deleted_at", null);
+    return query
+      .order("created_at", { ascending: false })
+      // Tie-break so rows sharing a timestamp keep a fixed order between loads.
+      .order("id", { ascending: false })
+      .limit(200);
+  });
+  if (error) console.error("admin donations:", error.message);
   const editable = await canEdit();
 
   const total = rows.filter((r) => r.verified).reduce((sum, r) => sum + Number(r.amount), 0);

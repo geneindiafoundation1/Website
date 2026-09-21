@@ -1,5 +1,6 @@
 import { memberVideos } from "./member-videos";
 import { seedPosts, seedTeam } from "./seed";
+import { missingDeletedAt, selectLive } from "./supabase/live";
 import { getServerSupabase } from "./supabase/server";
 import type { Member, Post } from "./types";
 
@@ -34,19 +35,18 @@ export async function getPosts({ includeDrafts = false } = {}): Promise<Post[]> 
     return seedPosts.filter((p) => includeDrafts || p.published);
   }
 
-  let query = supabase
-    .from("posts")
-    .select("*")
-    .is("deleted_at", null)
-    .order("published_at", { ascending: false });
-  if (!includeDrafts) query = query.eq("published", true);
-
-  const { data, error } = await query;
+  const { data, error } = await selectLive<Post>(async (filterTrashed) => {
+    let query = supabase.from("posts").select("*");
+    if (filterTrashed) query = query.is("deleted_at", null);
+    query = query.order("published_at", { ascending: false });
+    if (!includeDrafts) query = query.eq("published", true);
+    return query;
+  });
   if (error || !data) {
     console.error("getPosts:", error?.message);
     return seedPosts.filter((p) => includeDrafts || p.published).map(scrubRetiredCopy);
   }
-  return (data as Post[]).map(scrubRetiredCopy);
+  return data.map(scrubRetiredCopy);
 }
 
 export async function getPost(slug: string): Promise<Post | null> {
@@ -55,12 +55,11 @@ export async function getPost(slug: string): Promise<Post | null> {
     return seedPosts.find((p) => p.slug === slug && p.published) ?? null;
   }
 
-  const { data, error } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("slug", slug)
-    .is("deleted_at", null)
-    .maybeSingle();
+  const first = await supabase.from("posts").select("*").eq("slug", slug).is("deleted_at", null).maybeSingle();
+  const result = first.error && missingDeletedAt(first.error)
+    ? await supabase.from("posts").select("*").eq("slug", slug).maybeSingle()
+    : first;
+  const { data, error } = result;
   if (error) console.error("getPost:", error.message);
   const post = (data as Post | null) ?? seedPosts.find((p) => p.slug === slug) ?? null;
   return post ? scrubRetiredCopy(post) : null;
@@ -75,14 +74,13 @@ export async function getTeam({ includeDrafts = false } = {}): Promise<Member[]>
     );
   }
 
-  let query = supabase
-    .from("team_members")
-    .select("*")
-    .is("deleted_at", null)
-    .order("sort_order", { ascending: true });
-  if (!includeDrafts) query = query.eq("published", true);
-
-  const { data, error } = await query;
+  const { data, error } = await selectLive<Member>(async (filterTrashed) => {
+    let query = supabase.from("team_members").select("*");
+    if (filterTrashed) query = query.is("deleted_at", null);
+    query = query.order("sort_order", { ascending: true });
+    if (!includeDrafts) query = query.eq("published", true);
+    return query;
+  });
   if (error || !data) {
     console.error("getTeam:", error?.message);
     return liveTeam(seedTeam.filter((m) => includeDrafts || m.published));
