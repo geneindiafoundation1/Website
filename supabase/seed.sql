@@ -112,7 +112,7 @@ None of this replaces the urgent, structural work that still needs doing. Teache
 That teenager I mentioned at the start didn''t need someone for all the answers. They needed someone to take the questions seriously. I think that''s true for so many young people across Jammu, Kashmir and Ladakh right now, and I think it''s one of the more solvable problems we have in front of us, if enough of us decide to show up for it. And this teenager mentee becomes the mentor for another young mentee in the cycle of mentorship.', 'Access', '/blog/trail.jpg', true, '2026-09-13', 5)
 on conflict (slug) do update set
   title = excluded.title,
-  excerpt = excluded.excerpt, 
+  excerpt = excluded.excerpt,
   body = excluded.body,
   category = excluded.category,
   cover_url = excluded.cover_url,

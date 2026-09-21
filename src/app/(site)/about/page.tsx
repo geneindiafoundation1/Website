@@ -130,7 +130,7 @@ export default function AboutPage() {
           </div>
 
           <div className="prose story-body">
-            <p className="lead-para">
+            <p>
               Every idea has a moment of origin - a quiet realization that grows into a calling. For
               GENE-INDIA Foundation, that moment came not in a boardroom, but in countless
               conversations with students across India who all seemed to be asking some version of

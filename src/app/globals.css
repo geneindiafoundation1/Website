@@ -10,7 +10,7 @@
   --line: #d5dfeb;
   --brand: #134a80;
   --brand-ink: #0d3660;
-  --on-brand: #f2f7fc;
+  --on-brand: #ffffff;
   --accent: #15678f;
   --sky: #3f8fc4;
   --globe-india: #0d2136;
@@ -80,7 +80,7 @@
   --line: #d5dfeb;
   --brand: #134a80;
   --brand-ink: #0d3660;
-  --on-brand: #f2f7fc;
+  --on-brand: #ffffff;
   --accent: #15678f;
   --sky: #3f8fc4;
   --globe-india: #0d2136;
@@ -133,6 +133,34 @@ h3 {
   text-wrap: balance;
   letter-spacing: -0.012em;
   margin: 0;
+}
+
+h4,
+h5,
+h6 {
+  font-family: var(--f-body);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Two faces on every page: heading serif and body sans. Browsers otherwise
+   give blockquotes Times and <code> Courier. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+blockquote,
+q {
+  font-family: inherit;
+  font-style: normal;
+}
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--f-body);
 }
 
 p {
@@ -518,9 +546,17 @@ footer {
   background: var(--brand);
   color: var(--on-brand);
 }
-.btn-primary:hover:not([disabled]) {
+/* .nav a otherwise wins on colour and paints the label in the muted nav ink,
+   which reads as faint white-on-blue on a phone. */
+.nav a.btn-primary {
+  color: var(--on-brand);
+  background: var(--brand);
+}
+.btn-primary:hover:not([disabled]),
+.nav a.btn-primary:hover {
   transform: translateY(-1px);
   background: var(--brand-ink);
+  color: var(--on-brand);
 }
 .btn-ghost {
   border-color: var(--line);
@@ -913,6 +949,7 @@ a.card:hover {
   top: 96px;
 }
 .story-aside h2 {
+  font-family: var(--f-display);
   font-size: var(--step-3);
 }
 .story-aside .pullquote {
@@ -921,6 +958,11 @@ a.card:hover {
 /* The prose measure is set by the grid column here, not by a cap of its own. */
 .story-body {
   max-width: none;
+  font-family: var(--f-body);
+}
+.story-body p,
+.story-body strong {
+  font-family: var(--f-body);
 }
 @media (max-width: 900px) {
   .story-grid {
@@ -930,26 +972,25 @@ a.card:hover {
     position: static;
   }
 }
-/* One larger opening paragraph, so the story has a way in rather than
-   starting as an undifferentiated wall of body copy. */
-.prose .lead-para {
-  font-family: var(--f-body);
-  font-size: var(--step-1);
-  line-height: 1.55;
-  color: var(--ink);
-}
+/* Same two faces as the home story: heading serif, body sans. A bare
+   blockquote otherwise falls back to the browser's Times. */
 .pullquote {
   margin: 0.5rem 0;
   padding: 0.2rem 0 0.2rem 1.5rem;
   border-left: 3px solid var(--accent);
+  font-family: var(--f-display);
   font-size: var(--step-2);
+  font-weight: 700;
+  font-style: normal;
   line-height: 1.28;
   letter-spacing: -0.012em;
   color: var(--ink);
   text-wrap: balance;
 }
 .pullquote em {
+  font-family: inherit;
   font-style: italic;
+  font-weight: 700;
   color: var(--brand);
 }
 
@@ -1549,6 +1590,8 @@ textarea {
   letter-spacing: 0.08em;
 }
 .mono {
+  font-family: var(--f-body);
+  font-variant-numeric: tabular-nums;
   font-size: 0.92rem;
   letter-spacing: -0.01em;
 }
@@ -2283,6 +2326,19 @@ footer {
   .nav .btn {
     margin-top: 0.9rem;
     border-bottom: 0;
+    padding: 0.75rem 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  /* Keep the label solid white on navy in both themes. Theme tokens otherwise
+     put faint ink on a pale blue, which is hard to read in the overlay. */
+  .nav a.nav-donate {
+    background: #0d3660;
+    color: #ffffff;
+  }
+  .nav a.nav-donate:hover {
+    background: #082844;
+    color: #ffffff;
   }
   .top > .wrap > .btn-primary,
   .top-login {
