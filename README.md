@@ -115,6 +115,11 @@ Sign in at `/admin`.
 | Team members | Add or edit a member, upload a photo, reorder, hide, delete |
 | Messages | Read everything sent through the contact form |
 | Donations | See self-reported donations and mark each one verified |
+| Trash | Restore anything deleted, or - owners only - delete it forever |
+
+Deleting never destroys a record: it moves to **Trash**, where it can be
+restored at any time. **Delete forever** on that screen is the one irreversible
+action in the panel, so it asks for confirmation and is limited to owners.
 
 Post content uses a deliberately simple format: a blank line starts a new
 paragraph, and a line beginning with `## ` becomes a heading. Publishing

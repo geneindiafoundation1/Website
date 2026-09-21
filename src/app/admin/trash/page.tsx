@@ -1,7 +1,8 @@
 import { SetupNotice } from "../SetupNotice";
 import { NoPermission } from "../NoPermission";
-import { restoreItem } from "../actions";
-import { canEdit } from "@/lib/admin-role";
+import { ConfirmSubmit } from "../ConfirmSubmit";
+import { purgeItem, restoreItem } from "../actions";
+import { canEdit, isOwner } from "@/lib/admin-role";
 import { formatDateTime } from "@/lib/content";
 import { supabaseEnabled } from "@/lib/supabase/config";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -28,6 +29,7 @@ export default async function AdminTrash() {
   if (!(await canEdit())) return <NoPermission what="see the trash" />;
 
   const supabase = await getServerSupabase();
+  const owner = await isOwner();
 
   const groups = await Promise.all(
     SOURCES.map(async (source) => {
@@ -83,6 +85,18 @@ export default async function AdminTrash() {
                     Restore
                   </button>
                 </form>
+                {owner ? (
+                  <form action={purgeItem}>
+                    <input type="hidden" name="id" value={item.id} />
+                    <input type="hidden" name="table" value={item.table} />
+                    <ConfirmSubmit
+                      className="btn btn-danger btn-sm"
+                      confirmText={`Delete "${item.label}" forever? This cannot be undone.`}
+                    >
+                      Delete forever
+                    </ConfirmSubmit>
+                  </form>
+                ) : null}
               </div>
             </div>
           ))
@@ -91,8 +105,9 @@ export default async function AdminTrash() {
 
       {items.length > 0 ? (
         <p className="hint" style={{ marginTop: "1rem" }}>
-          Items stay here indefinitely and can always be restored. Nothing is ever permanently
-          removed from the admin panel.
+          {owner
+            ? "Items stay here indefinitely and can be restored at any time. Delete forever destroys a record outright - there is no way to get it back."
+            : "Items stay here indefinitely and can be restored at any time. Only an owner can delete something permanently."}
         </p>
       ) : null}
     </>

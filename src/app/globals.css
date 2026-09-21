@@ -530,6 +530,15 @@ footer {
 .btn-ghost:hover {
   border-color: var(--ink-faint);
 }
+.btn-danger {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+.btn-danger:hover:not([disabled]) {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 16%, var(--surface));
+}
 .btn-lg {
   padding: 0.8rem 1.5rem;
   font-size: 1rem;

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { canEdit } from "@/lib/admin-role";
+import { canEdit, isOwner } from "@/lib/admin-role";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 const str = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -239,12 +239,16 @@ async function trash(
   return { error: null };
 }
 
-export async function restoreItem(formData: FormData) {
-  const supabase = await requireSupabase();
-  const table = str(formData, "table") as Table;
-  if (!["posts", "team_members", "messages", "donations"].includes(table)) {
+function asTable(value: string): Table {
+  if (!["posts", "team_members", "messages", "donations"].includes(value)) {
     throw new Error("Unknown item.");
   }
+  return value as Table;
+}
+
+export async function restoreItem(formData: FormData) {
+  const supabase = await requireSupabase();
+  const table = asTable(str(formData, "table"));
 
   const { data, error } = await supabase
     .from(table)
@@ -258,6 +262,35 @@ export async function restoreItem(formData: FormData) {
   revalidatePath("/blog");
   revalidatePath("/team");
   revalidatePath("/");
+}
+
+/**
+ * Destroys one trashed row for good. The only step in the panel with no undo,
+ * so it is owners-only and refuses anything still live - a row has to be put in
+ * the trash first, which makes deleting forever a deliberate second decision.
+ */
+export async function purgeItem(formData: FormData) {
+  const supabase = await requireSupabase();
+  if (!(await isOwner())) {
+    throw new Error(
+      "Only an owner can delete something permanently. Ask a foundation owner to do this.",
+    );
+  }
+
+  const table = asTable(str(formData, "table"));
+  const id = str(formData, "id");
+
+  const { data, error } = await supabase
+    .from(table)
+    .delete()
+    .eq("id", id)
+    .not("deleted_at", "is", null)
+    .select("id");
+  if (error) fail(error);
+  if (!data || data.length === 0) fail(REFUSED);
+
+  revalidatePath("/admin/trash");
+  revalidatePath("/admin/activity");
 }
 
 
