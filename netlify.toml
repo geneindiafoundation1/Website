@@ -1,0 +1,11 @@
+# Netlify build settings. The official Next.js runtime is detected automatically
+# and handles the publish directory, SSR and image optimisation.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
