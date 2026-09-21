@@ -1,15 +1,17 @@
-name: Monthly database backup
+name: Keep database alive
 
+# Free-plan Supabase pauses after 7 days with no traffic. Ping twice a week so
+# the gap never reaches that. Also runnable by hand from the Actions tab.
 on:
   schedule:
-    # 1st of every month, 06:00 UTC (11:30 IST)
-    - cron: "0 6 1 * *"
+    # Monday and Thursday, 06:00 UTC (11:30 IST)
+    - cron: "0 6 * * 1,4"
   workflow_dispatch:
 
 jobs:
-  backup:
+  ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:
@@ -17,15 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - name: Dump database
+      - name: Ping the database
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run backup
-      - uses: actions/upload-artifact@v4
-        with:
-          name: gene-india-backup-${{ github.run_id }}
-          path: backups
-          retention-days: 90
+        run: node scripts/keep-alive.mjs

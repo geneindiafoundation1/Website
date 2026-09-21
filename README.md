@@ -79,28 +79,37 @@ What gets sent:
 | Contact form | The message, reply-to set to the sender | Acknowledgement |
 | Donor form | Amount, mode, UTR reference, plus a reminder to verify against the bank statement before issuing an 80G receipt | Thank-you |
 
-### 3. Monthly database backup (free plan)
+### 3. Keep the database awake, and a monthly backup
 
-Supabase's free plan does not keep restore-able backups. Run this once a month,
-or let GitHub Actions do it on the 1st:
+A free Supabase project **pauses after 7 days** with no traffic. GitHub Actions
+ping it twice a week (Monday and Thursday). On the **1st of each month** they
+also dump the data, because the free plan does not keep restore-able backups.
+
+Both workflows need two repository secrets (Settings → Secrets and variables →
+Actions). Copy them from **Supabase → Project Settings → API**. Never put the
+service_role key in the browser or in git.
+
+| Secret | What it is |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL, `https://….supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `service_role` key (secret) |
+
+| Workflow | When | What it does |
+| --- | --- | --- |
+| `.github/workflows/keep-alive.yml` | Monday and Thursday, 06:00 UTC | Reads one post row so the project stays awake |
+| `.github/workflows/backup.yml` | 1st of each month, 06:00 UTC | Writes `backups/YYYY-MM-DD/` and stores it as an artifact for 90 days |
+
+You can also run either by hand from the Actions tab, or locally:
 
 ```bash
+npm run keep-alive
 npm run backup
 ```
 
-It writes `backups/YYYY-MM-DD/database.json` (posts, team, messages, donations,
-admins, activity log) and any files from the `media` bucket. That folder is
-gitignored — it contains personal data, so keep the files somewhere private.
-
-You need the **service_role** key in `.env.local` (`SUPABASE_SERVICE_ROLE_KEY`),
-from **Supabase → Project Settings → API**. Never expose that key in the
-browser.
-
-If the repo is on GitHub, add the same two values as repository secrets
-(`NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`). The workflow
-`.github/workflows/backup.yml` then dumps on the 1st of each month and keeps
-the file as an artifact for 90 days. You can also run it by hand from the
-Actions tab.
+The backup folder is gitignored — it contains messages and donation details, so
+keep those files private. GitHub scheduled workflows stop if the repo has had
+no commits for 60 days; a keep-alive run itself does not count, so merge
+something at least every couple of months or run the workflow by hand.
 
 ---
 
