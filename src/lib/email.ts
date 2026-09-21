@@ -1,46 +1,55 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
-const from =
-  process.env.EMAIL_FROM || "GENE-INDIA Foundation <info@geneindiafoundation.org>";
-/** EMAIL_TO may list several addresses, comma-separated. */
-const to = process.env.EMAIL_TO || "";
-const recipients = to
-  .split(",")
-  .map((address) => address.trim())
-  .filter(Boolean);
+/** Netlify often stores the surrounding quotes if they were pasted in. */
+function env(name: string) {
+  let value = process.env[name]?.trim() || "";
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+  return value;
+}
 
-const smtpHost = process.env.SMTP_HOST?.trim();
-const smtpUser = process.env.SMTP_USER?.trim();
-const smtpPass = process.env.SMTP_PASS;
-const smtpPort = Number(process.env.SMTP_PORT) || 465;
-const smtpSecure = process.env.SMTP_SECURE
-  ? process.env.SMTP_SECURE !== "false"
-  : smtpPort === 465;
+function fromAddress() {
+  return env("EMAIL_FROM") || "GENE-INDIA Foundation <info@geneindiafoundation.org>";
+}
 
-const smtpReady = Boolean(smtpHost && smtpUser && smtpPass && to);
-const apiKey = process.env.RESEND_API_KEY?.trim();
-const resendReady = Boolean(apiKey && to);
+function recipients() {
+  return env("EMAIL_TO")
+    .split(",")
+    .map((address) => address.trim())
+    .filter(Boolean);
+}
 
-export const emailEnabled = smtpReady || resendReady;
+function smtpReady() {
+  return Boolean(env("SMTP_HOST") && env("SMTP_USER") && env("SMTP_PASS") && recipients().length);
+}
 
-const transporter = smtpReady
-  ? nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpSecure,
-      auth: { user: smtpUser, pass: smtpPass },
-    })
-  : null;
+function resendReady() {
+  return Boolean(env("RESEND_API_KEY") && recipients().length);
+}
 
-const resend = resendReady ? new Resend(apiKey) : null;
+export function emailEnabled() {
+  return smtpReady() || resendReady();
+}
 
 type Mail = { to: string | string[]; subject: string; html: string; replyTo?: string };
 
 async function send({ to: recipient, subject, html, replyTo }: Mail) {
-  if (transporter) {
+  if (smtpReady()) {
+    const port = Number(env("SMTP_PORT")) || 465;
+    const secure = env("SMTP_SECURE") ? env("SMTP_SECURE") !== "false" : port === 465;
+    const transporter = nodemailer.createTransport({
+      host: env("SMTP_HOST"),
+      port,
+      secure,
+      auth: { user: env("SMTP_USER"), pass: env("SMTP_PASS") },
+    });
     await transporter.sendMail({
-      from,
+      from: fromAddress(),
       to: recipient,
       subject,
       html,
@@ -49,13 +58,15 @@ async function send({ to: recipient, subject, html, replyTo }: Mail) {
     return;
   }
 
-  if (!resend) {
+  const apiKey = env("RESEND_API_KEY");
+  if (!apiKey || !recipients().length) {
     console.info(`[email disabled] would send "${subject}" to ${recipient}`);
     return;
   }
 
+  const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
-    from,
+    from: fromAddress(),
     to: recipient,
     subject,
     html,
@@ -85,7 +96,7 @@ export async function sendContactEmails(data: {
   message: string;
 }) {
   await send({
-    to: recipients,
+    to: recipients(),
     replyTo: data.email,
     subject: `Contact form - ${data.topic}`,
     html: shell(
@@ -122,7 +133,7 @@ export async function sendDonationEmails(data: {
   const amount = `₹${data.amount.toLocaleString("en-IN")}`;
 
   await send({
-    to: recipients,
+    to: recipients(),
     replyTo: data.email,
     subject: `Donation reported - ${amount} from ${data.name}`,
     html: shell(

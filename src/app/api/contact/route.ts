@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({
-    message: emailEnabled
+    message: emailEnabled()
       ? "Thank you - your message is on its way. We'll get back to you within two working days."
       : "Thank you - your message was received. (Email delivery is not switched on yet in this environment.)",
   });

@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({
-    message: emailEnabled
+    message: emailEnabled()
       ? "Thank you. A confirmation email is on its way, and our team will verify the amount against the bank statement before issuing your receipt."
       : "Thank you - your details were received. (Email delivery is not switched on yet in this environment.)",
   });
