@@ -9,3 +9,48 @@
 
 # The database keep-alive runs on GitHub Actions (.github/workflows/keep-alive.yml),
 # not as a Netlify scheduled function - that would cost compute credits.
+
+# Images shipped with the site (public/). Browsers keep them for a week, so a
+# returning visitor neither re-downloads nor re-checks them - every request
+# Netlify serves costs credits. Netlify applies these to static files only,
+# never to pages, so /blog/<post> HTML is unaffected. If an image here must
+# change sooner, give it a NEW file name. (Uploaded images live on Supabase.)
+[[headers]]
+  for = "/blog/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/blog/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/team/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/team/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/programs/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/brand/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/brand/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/brand/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
