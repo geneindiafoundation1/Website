@@ -1,7 +1,6 @@
 import { SetupNotice } from "../SetupNotice";
 import { deleteMessage } from "../actions";
 import { formatDateTime } from "@/lib/content";
-import { canEdit } from "@/lib/admin-role";
 import { supabaseEnabled } from "@/lib/supabase/config";
 import { selectLive } from "@/lib/supabase/live";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -31,7 +30,6 @@ export default async function AdminMessages() {
       .limit(100);
   });
   if (error) console.error("admin messages:", error.message);
-  const editable = await canEdit();
 
   return (
     <>
@@ -64,14 +62,12 @@ export default async function AdminMessages() {
               <p className="hint" style={{ marginTop: ".45rem" }}>
                 <a href={`mailto:${row.email}`}>Reply to {row.email}</a>
               </p>
-              {editable ? (
-                <form action={deleteMessage} style={{ marginTop: ".7rem" }}>
-                  <input type="hidden" name="id" value={row.id} />
-                  <button className="btn btn-ghost btn-sm" type="submit">
-                    Delete message
-                  </button>
-                </form>
-              ) : null}
+              <form action={deleteMessage} style={{ marginTop: ".7rem" }}>
+                <input type="hidden" name="id" value={row.id} />
+                <button className="btn btn-ghost btn-sm" type="submit">
+                  Delete message
+                </button>
+              </form>
             </details>
           ))
         )}

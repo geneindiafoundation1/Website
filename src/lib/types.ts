@@ -26,18 +26,31 @@ export type Member = {
   video?: { id: string; title: string } | null;
 };
 
+export type Program = {
+  id: string;
+  slug: string;
+  title: string;
+  /** Short line above the title, e.g. "A family mentorship program". */
+  eyebrow: string;
+  /** One-line hook shown under the title. */
+  tagline: string;
+  /** Paragraphs separated by blank lines. */
+  summary: string;
+  poster_url: string | null;
+  /** "Label: value" lines, e.g. "When: Once a month". */
+  details: string[];
+  /** "Heading: description" lines, shown as a numbered list. */
+  highlights: string[];
+  tags: string[];
+  /** Who will benefit most - optional. */
+  audience: string;
+  sort_order: number;
+  published: boolean;
+};
+
 export type ContactMessage = {
   name: string;
   email: string;
   topic: string;
   message: string;
-};
-
-export type Donation = {
-  name: string;
-  email: string;
-  amount: number;
-  mode: string;
-  reference: string;
-  note: string;
 };

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { SetupNotice } from "../SetupNotice";
 import { deleteMember } from "../actions";
 import { getTeam } from "@/lib/content";
-import { canEdit } from "@/lib/admin-role";
 import { supabaseEnabled } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
@@ -10,19 +9,14 @@ export const dynamic = "force-dynamic";
 export default async function AdminTeam() {
   if (!supabaseEnabled) return <SetupNotice />;
   const team = await getTeam({ includeDrafts: true });
-  const editable = await canEdit();
 
   return (
     <>
       <div className="admin-head">
         <h1>Team members</h1>
-        {editable ? (
-          <Link className="btn btn-primary btn-sm" href="/admin/team/new">
-            Add member
-          </Link>
-        ) : (
-          <span className="pill">Read only</span>
-        )}
+        <Link className="btn btn-primary btn-sm" href="/admin/team/new">
+          Add member
+        </Link>
       </div>
 
       <div className="rows">
@@ -39,8 +33,6 @@ export default async function AdminTeam() {
                 {member.published ? "Live" : "Hidden"}
               </span>
               <div style={{ display: "flex", gap: ".4rem" }}>
-                {editable ? (
-                  <>
                 <Link className="btn btn-ghost btn-sm" href={`/admin/team/${member.id}`}>
                   Edit
                 </Link>
@@ -50,8 +42,6 @@ export default async function AdminTeam() {
                     Delete
                   </button>
                 </form>
-                  </>
-                ) : null}
               </div>
             </div>
           ))

@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description:
-    "The terms on which GENE-INDIA Foundation makes this website, its mentorship programs, and its donation channels available.",
+    "The terms on which GENE-INDIA Foundation makes this website and its mentorship programs available.",
 };
 
 const { legal } = site;
@@ -17,8 +17,8 @@ const SECTIONS: LegalSection[] = [
     body: (
       <p>
         These Terms &amp; Conditions govern your use of {site.url} and any program, event, or service
-        the Foundation offers through it. By using this website, contacting us, volunteering, or
-        donating, you agree to these terms. If you do not agree, please do not use the site.
+        the Foundation offers through it. By using this website, contacting us, or volunteering, you
+        agree to these terms. If you do not agree, please do not use the site.
       </p>
     ),
   },
@@ -122,36 +122,6 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
-    heading: "Donations",
-    body: (
-      <>
-        <p>
-          Donations to the Foundation are voluntary contributions made to support its charitable work.
-          They are not a purchase, and they do not buy goods, services, membership, mentorship, or any
-          preferential treatment.
-        </p>
-        <p>
-          Donations are made directly to the Foundation&rsquo;s bank account or UPI ID - this website
-          does not process payments and never handles your card or banking credentials. You are
-          responsible for confirming the account details before sending money, and for the accuracy of
-          the details you enter in your own banking app. Please read our{" "}
-          <Link href="/refund-policy">Refund &amp; Cancellation Policy</Link> before donating.
-        </p>
-        <p>
-          We will accept donations from Indian banks, with an undertaking that the donation is being
-          made by an individual on his/her behalf. We will <strong>not</strong> accept donations from
-          foreign banking institutions. We reserve the right to refuse accepting donations based on
-          our due diligence.
-        </p>
-        <p>
-          We may decline or return a donation at our discretion - for instance where the source is
-          unclear, where accepting it would breach any law applying to the Foundation, or where it
-          would compromise our independence.
-        </p>
-      </>
-    ),
-  },
-  {
     heading: "Content and intellectual property",
     body: (
       <>
@@ -216,7 +186,7 @@ const SECTIONS: LegalSection[] = [
     heading: "Privacy",
     body: (
       <p>
-        Our <Link href="/privacy">Privacy Policy</Link> explains what personal information we collect
+        Our <Link prefetch={false} href="/privacy">Privacy Policy</Link> explains what personal information we collect
         and how we handle it. It forms part of these terms.
       </p>
     ),
@@ -249,7 +219,7 @@ export default function TermsPage() {
     <LegalPage
       eyebrow="Legal"
       title="Terms & Conditions"
-      intro="The terms on which we make this website, our volunteer-led mentorship programs, and our donation channels available to you."
+      intro="The terms on which we make this website and our volunteer-led mentorship programs available to you."
       sections={SECTIONS}
     />
   );

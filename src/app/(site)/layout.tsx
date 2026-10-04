@@ -1,5 +1,4 @@
 import { AmbientField } from "@/components/AmbientField";
-import { ScrollReveal } from "@/components/ScrollReveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { site } from "@/lib/site";
@@ -25,7 +24,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </a>
       <AmbientField />
       <SiteHeader />
-      <ScrollReveal />
       <main id="main">{children}</main>
       <SiteFooter />
       <script

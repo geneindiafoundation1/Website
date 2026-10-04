@@ -87,7 +87,8 @@ export default function LoginPage() {
             <ul className="login-aside-list">
               <li>Publish stories and blog posts</li>
               <li>Manage the team directory</li>
-              <li>Review messages and donations</li>
+              <li>Add and update programs</li>
+              <li>Review messages</li>
             </ul>
           </div>
         </aside>

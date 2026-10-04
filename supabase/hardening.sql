@@ -6,7 +6,7 @@
 -- It does two things:
 --   1. Restricts write access to an explicit `admins` allow-list, instead of
 --      "anyone who happens to hold an account".
---   2. Adds a shared rate-limit counter, so the contact and donation forms are
+--   2. Adds a shared rate-limit counter, so the contact form is
 --      throttled across every serverless instance rather than per-instance.
 -- ---------------------------------------------------------------------------
 
@@ -80,16 +80,6 @@ drop policy if exists "staff read messages" on public.messages;
 create policy "staff read messages"
   on public.messages for select to authenticated
   using (public.is_admin());
-
-drop policy if exists "staff read donations" on public.donations;
-create policy "staff read donations"
-  on public.donations for select to authenticated
-  using (public.is_admin());
-
-drop policy if exists "staff verify donations" on public.donations;
-create policy "staff verify donations"
-  on public.donations for update to authenticated
-  using (public.is_admin()) with check (public.is_admin());
 
 -- Uploaded images: world-readable (it is a website), admin-writable only.
 drop policy if exists "staff upload media" on storage.objects;

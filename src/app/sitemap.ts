@@ -2,8 +2,11 @@ import type { MetadataRoute } from "next";
 import { getPosts } from "@/lib/content";
 import { site } from "@/lib/site";
 
+// Static until the admin panel changes its content (revalidatePath) - no timed rebuilds.
+export const revalidate = false;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes = ["", "/about", "/team", "/blog", "/contact", "/donate"].map((path) => ({
+  const staticRoutes = ["", "/about", "/programs", "/team", "/blog", "/contact"].map((path) => ({
     url: `${site.url}${path}`,
     lastModified: new Date(),
     changeFrequency: "monthly" as const,
@@ -11,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Policy pages: indexed, but rarely change and shouldn't outrank the real content.
-  const legalRoutes = ["/privacy", "/terms", "/refund-policy"].map((path) => ({
+  const legalRoutes = ["/privacy", "/terms"].map((path) => ({
     url: `${site.url}${path}`,
     lastModified: new Date(),
     changeFrequency: "yearly" as const,

@@ -51,15 +51,15 @@ export function SiteHeader() {
   return (
     <header className="top">
       <div className="wrap top-in">
-        <Link className="brand" href="/" aria-label={`${site.name} - home`}>
+        <Link prefetch={false} className="brand" href="/" aria-label={`${site.name} - home`}>
           {/* The complete master lockup - arc, emblem, wordmark, and strapline. */}
-          <LogoFull className="logo-full brand-full" width={160} />
+          <LogoFull className="logo-full brand-full" width={160} priority />
         </Link>
 
         <nav className={open ? "nav open" : "nav"} id="site-nav" ref={navRef}>
           <span className="nav-ink" data-ready="false" ref={inkRef} aria-hidden="true" />
           {site.nav.map((item) => (
-            <Link
+            <Link prefetch={false}
               key={item.href}
               href={item.href}
               aria-current={isCurrent(item.href) ? "page" : undefined}
@@ -67,20 +67,8 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <Link className="nav-login" href="/admin">
-            Team login
-          </Link>
-          <Link className="btn btn-primary nav-donate" href="/donate">
-            Donate
-          </Link>
         </nav>
 
-        <Link className="top-login" href="/admin">
-          Team login
-        </Link>
-        <Link className="btn btn-primary" href="/donate">
-          Donate
-        </Link>
         <ThemeToggle />
 
         <button

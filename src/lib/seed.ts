@@ -1,4 +1,4 @@
-import type { Member, Post } from "./types";
+import type { Member, Post, Program } from "./types";
 
 /**
  * Fallback content, used whenever Supabase is not configured.
@@ -170,5 +170,47 @@ At GENE-INDIA Foundation, Dr. Kaul brings a lifetime of mentorship experience an
     bio: `A young neurobiologist whose work sits at the intersection of scientific rigor and social purpose. Driven by a firsthand understanding of how far talent can be limited by a lack of access rather than ability, she co-founded GENE-INDIA Foundation to build the kind of mentorship network she wished existed for students navigating the sciences on their own.
 
 Her research background gives her a deep appreciation for structured guidance and long-term thinking - qualities she now channels into shaping GENE-INDIA's programs, partnerships, and vision for grassroots impact across India.`,
+  },
+];
+
+export const seedPrograms: Program[] = [
+  {
+    id: "seed-program-1",
+    slug: "grand-round-lecture-series",
+    title: "The Grand-Round Lecture Series",
+    eyebrow: "Flagship program · Monthly lectures",
+    tagline: "Extraordinary journeys, in their own words.",
+    summary:
+      "Every month, we bring you face to face with highly accomplished and remarkable people: the scientists, doctors, engineers, and artists who are shaping our world. They share not just what they achieved, but how they got there: the learnings and turning points, the setbacks and the choices that made them.\n\nCome for the ideas, stay for the stories, and leave inspired to write your own. Through these interactions, carve your own path to a very successful career.",
+    poster_url: "/programs/grand-round-lecture-series.jpg",
+    details: ["When: Once a month", "Where: Live on Zoom", "Also streaming: Facebook Live"],
+    highlights: [],
+    tags: ["Scientists", "Doctors", "Engineers", "Artists", "Innovators"],
+    audience: "",
+    sort_order: 1,
+    published: true,
+  },
+  {
+    id: "seed-program-2",
+    slug: "parents-as-pathfinders",
+    title: "Parents as Pathfinders",
+    eyebrow: "Flagship program · A family mentorship program",
+    tagline: "Guide with confidence. Grow together.",
+    summary:
+      "Every child's future begins early in life, and at home. This program gives parents the knowledge, tools and confidence to guide their children through today's fast-changing world of careers and opportunities, through curated expert-led sessions, personal mentoring and a supportive community of families.",
+    poster_url: "/programs/parents-as-pathfinders.jpg",
+    details: ["For: Parent + child pairs", "Grades: 1–5"],
+    highlights: [
+      "See the full map of possibilities: Emerging careers in science, medicine, technology, arts, humanities, design and beyond.",
+      "Navigate the big decisions: Subject choices, entrance exams, scholarships and admissions.",
+      "Nurture your child's strengths: Spot their talents and support their interests, without pressure.",
+      "Talk openly, together: Build conversations about goals, setbacks and wellbeing.",
+      "Join a community: Connect with mentors and families on the same journey.",
+    ],
+    tags: [],
+    audience:
+      "Parents whose children are in the very early stages of their academic journey, mentored together as parent–student pairs in Grades 1–5.",
+    sort_order: 2,
+    published: true,
   },
 ];

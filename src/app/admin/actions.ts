@@ -2,10 +2,30 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { canEdit, isOwner } from "@/lib/admin-role";
+import { isAdmin } from "@/lib/admin-role";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 const str = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
+
+/**
+ * Public pages are static and only rebuilt when content changes (no timed
+ * rebuilds - those cost Netlify compute). So every save, delete, and restore
+ * must refresh each public page that shows the content it touched.
+ */
+function refreshPosts() {
+  revalidatePath("/");
+  revalidatePath("/blog");
+  // Every post page - covers a renamed web address and the "latest posts" on each.
+  revalidatePath("/blog/[slug]", "page");
+  revalidatePath("/sitemap.xml");
+}
+function refreshTeam() {
+  revalidatePath("/team");
+}
+function refreshPrograms() {
+  revalidatePath("/");
+  revalidatePath("/programs");
+}
 
 /**
  * Browser `required` attributes are a convenience, not a guarantee - a form can
@@ -35,9 +55,8 @@ function slugify(value: string) {
 }
 
 /**
- * Every write goes through here. Hiding buttons from read-only members is a
- * courtesy; this is the check that actually stops them, and the database
- * policies stop anyone who gets past this.
+ * Every write goes through here: the account must be signed in and on the
+ * admin allow-list. The database policies stop anyone who gets past this.
  */
 async function requireSupabase() {
   const supabase = await getServerSupabase();
@@ -47,11 +66,10 @@ async function requireSupabase() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  // Owners and editors may write; viewers and unlisted accounts may not.
-  if (!(await canEdit())) {
+  if (!(await isAdmin())) {
     throw new Error(
-      "You don't have permission to change content. Your account has read-only access - " +
-        "ask a foundation administrator if you need editing rights.",
+      "Your account is signed in but is not on the admin allow-list, so it cannot change " +
+        "content. Ask a foundation administrator to add it in Supabase.",
     );
   }
   return supabase;
@@ -108,9 +126,7 @@ export async function savePost(formData: FormData) {
 
   if (error) fail(error);
 
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${record.slug}`);
-  revalidatePath("/");
+  refreshPosts();
   redirect("/admin/posts");
 }
 
@@ -118,7 +134,7 @@ export async function deletePost(formData: FormData) {
   const supabase = await requireSupabase();
   const { error } = await trash(supabase, "posts", str(formData, "id"));
   if (error) fail(error);
-  revalidatePath("/blog");
+  refreshPosts();
   revalidatePath("/admin/posts");
 }
 
@@ -160,7 +176,7 @@ export async function saveMember(formData: FormData) {
 
   if (error) fail(error);
 
-  revalidatePath("/team");
+  refreshTeam();
   redirect("/admin/team");
 }
 
@@ -168,25 +184,71 @@ export async function deleteMember(formData: FormData) {
   const supabase = await requireSupabase();
   const { error } = await trash(supabase, "team_members", str(formData, "id"));
   if (error) fail(error);
-  revalidatePath("/team");
+  refreshTeam();
   revalidatePath("/admin/team");
 }
 
-/* ---------------------------- donations ----------------------------- */
+/* ----------------------------- programs ----------------------------- */
 
-export async function markDonationVerified(formData: FormData) {
+const lines = (form: FormData, key: string) =>
+  str(form, key)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+export async function saveProgram(formData: FormData) {
   const supabase = await requireSupabase();
-  const { error } = await supabase
-    .from("donations")
-    .update({ verified: true })
-    .eq("id", str(formData, "id"));
+
+  requireFields(formData, {
+    title: "Program name",
+    eyebrow: "Label above the name",
+    tagline: "Tagline",
+    poster_url: "Poster",
+    summary: "Description",
+    sort_order: "Display order",
+  });
+
+  const id = str(formData, "id");
+  const title = str(formData, "title");
+
+  const record = {
+    title,
+    slug: slugify(str(formData, "slug") || title),
+    eyebrow: str(formData, "eyebrow"),
+    tagline: str(formData, "tagline"),
+    summary: str(formData, "summary"),
+    poster_url: str(formData, "poster_url") || null,
+    details: lines(formData, "details"),
+    highlights: lines(formData, "highlights"),
+    tags: str(formData, "tags")
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean),
+    audience: str(formData, "audience"),
+    sort_order: Number(str(formData, "sort_order")) || 99,
+    published: formData.get("published") === "on",
+  };
+
+  const { error } = id
+    ? await supabase.from("programs").update(record).eq("id", id)
+    : await supabase.from("programs").insert(record);
+
   if (error) fail(error);
-  revalidatePath("/admin/donations");
+
+  refreshPrograms();
+  redirect("/admin/programs");
+}
+
+export async function deleteProgram(formData: FormData) {
+  const supabase = await requireSupabase();
+  const { error } = await trash(supabase, "programs", str(formData, "id"));
+  if (error) fail(error);
+  refreshPrograms();
+  revalidatePath("/admin/programs");
 }
 
 /* ------------------------ deleting records ------------------------ */
-/* Editors and owners may clear messages and donation entries; viewers may not.
- * Deletion is permanent - there is no undo. */
+/* Deleting moves a message to the Trash, where it can be restored. */
 
 export async function deleteMessage(formData: FormData) {
   const supabase = await requireSupabase();
@@ -195,19 +257,11 @@ export async function deleteMessage(formData: FormData) {
   revalidatePath("/admin/messages");
 }
 
-export async function deleteDonation(formData: FormData) {
-  const supabase = await requireSupabase();
-  const { error } = await trash(supabase, "donations", str(formData, "id"));
-  if (error) fail(error);
-  revalidatePath("/admin/donations");
-}
-
 /* --------------------------- trash & restore --------------------------- */
 /* Deleting marks the row instead of destroying it, so it can be recovered from
- * the Trash screen. Emptying the trash is the only irreversible step, and that
- * is reserved for owners. */
+ * the Trash screen. Emptying the trash is the only irreversible step. */
 
-type Table = "posts" | "team_members" | "messages" | "donations";
+type Table = "posts" | "team_members" | "programs" | "messages";
 
 /**
  * A row-level-security refusal is not an error - the update simply matches no
@@ -240,7 +294,7 @@ async function trash(
 }
 
 function asTable(value: string): Table {
-  if (!["posts", "team_members", "messages", "donations"].includes(value)) {
+  if (!["posts", "team_members", "programs", "messages"].includes(value)) {
     throw new Error("Unknown item.");
   }
   return value as Table;
@@ -259,23 +313,18 @@ export async function restoreItem(formData: FormData) {
   if (!data || data.length === 0) fail(REFUSED);
 
   revalidatePath("/admin/trash");
-  revalidatePath("/blog");
-  revalidatePath("/team");
-  revalidatePath("/");
+  refreshPosts();
+  refreshTeam();
+  refreshPrograms();
 }
 
 /**
  * Destroys one trashed row for good. The only step in the panel with no undo,
- * so it is owners-only and refuses anything still live - a row has to be put in
- * the trash first, which makes deleting forever a deliberate second decision.
+ * so it refuses anything still live - a row has to be put in the trash first,
+ * which makes deleting forever a deliberate second decision.
  */
 export async function purgeItem(formData: FormData) {
   const supabase = await requireSupabase();
-  if (!(await isOwner())) {
-    throw new Error(
-      "Only an owner can delete something permanently. Ask a foundation owner to do this.",
-    );
-  }
 
   const table = asTable(str(formData, "table"));
   const id = str(formData, "id");

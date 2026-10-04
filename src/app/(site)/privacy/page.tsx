@@ -47,20 +47,6 @@ const SECTIONS: LegalSection[] = [
           select, and the message you write.
         </p>
         <p>
-          <strong>When you tell us about a donation</strong> - your name, email address, the amount,
-          the method you used (UPI or bank transfer), an optional payment reference or UTR number, and
-          an optional note. This form only <em>notifies</em> us of a transfer you have already made
-          through your own bank or UPI app; see the section on payment information below.
-        </p>
-        <p>
-          We will accept donations from Indian banks, with an undertaking that the donation is being
-          made by an individual on his/her behalf.
-        </p>
-        <p>
-          We will <strong>not</strong> accept donations from foreign banking institutions. We reserve
-          the right to refuse accepting donations based on our due diligence.
-        </p>
-        <p>
           <strong>When a Foundation administrator signs in</strong> - an email address and password
           used solely to manage website content. Public visitors never create accounts.
         </p>
@@ -74,31 +60,13 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
-    heading: "Payment information",
-    body: (
-      <>
-        <p>
-          <strong>We never see or store your payment details.</strong> The Foundation does not run a
-          payment gateway on this website. Donations are made directly from your bank account or UPI
-          app to the Foundation&rsquo;s account, which means no card number, CVV, PIN, UPI PIN,
-          net-banking credential, or bank login ever passes through this site.
-        </p>
-        <p>
-          If you choose to send us a payment reference or UTR number afterwards, we store it only to
-          match your contribution to our bank statement and to issue an acknowledgement.
-        </p>
-      </>
-    ),
-  },
-  {
     heading: "How we use your information",
     body: (
       <>
         <p>We use what you send us to:</p>
         <p>
-          Reply to your enquiry or volunteering interest; acknowledge, verify, and keep a record of
-          donations; maintain the Foundation&rsquo;s financial and statutory records; and protect the
-          website from spam and automated abuse.
+          Reply to your enquiry or volunteering interest; maintain the Foundation&rsquo;s statutory
+          records; and protect the website from spam and automated abuse.
         </p>
         <p>
           We process this information because you have given it to us for these purposes, and because
@@ -115,7 +83,7 @@ const SECTIONS: LegalSection[] = [
       <p>
         We do not sell, rent, trade, or otherwise make your personal information available to third
         parties for their own marketing. We do not run advertising on this site and we do not share
-        donor or enquiry data with advertisers, data brokers, or fundraising agencies.
+        enquiry data with advertisers, data brokers, or fundraising agencies.
       </p>
     ),
   },
@@ -164,9 +132,7 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>
           We keep enquiry messages only as long as needed to deal with them and to keep a reasonable
-          record of correspondence. We keep donation records for as long as the law requires the
-          Foundation to retain financial records, and generally longer than enquiry messages for that
-          reason. Anti-spam fingerprints are short-lived and expire automatically.
+          record of correspondence. Anti-spam fingerprints are short-lived and expire automatically.
         </p>
         <p>
           You may ask us to delete information about you at any time, and we will do so except where
@@ -234,7 +200,7 @@ const SECTIONS: LegalSection[] = [
         <p>
           For any question, request, or complaint about how we handle your personal information, write
           to <a href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</a>, or use the{" "}
-          <Link href="/contact">contact form</Link>. We aim to acknowledge every request promptly and
+          <Link prefetch={false} href="/contact">contact form</Link>. We aim to acknowledge every request promptly and
           resolve it fairly.
         </p>
         {legal.postalAddress ? <p>You may also write to us at {legal.postalAddress}.</p> : null}
@@ -248,13 +214,12 @@ export default function PrivacyPage() {
     <LegalPage
       eyebrow="Legal"
       title="Privacy Policy"
-      intro="What we collect when you contact us or tell us about a donation, why we collect it, who else can see it, and how to ask us to change or delete it."
+      intro="What we collect when you contact us, why we collect it, who else can see it, and how to ask us to change or delete it."
       sections={SECTIONS}
       closing={
         <>
-          In short: we collect only what you send us through our forms; we never see your card or
-          banking credentials; we do not sell or share your details for marketing; and you can ask us
-          to delete your information at any time.
+          In short: we collect only what you send us through our forms; we do not sell or share your
+          details for marketing; and you can ask us to delete your information at any time.
         </>
       }
     />

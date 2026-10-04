@@ -7,7 +7,7 @@
  *   npm run backup
  *
  * Writes backups/YYYY-MM-DD/database.json plus any files from the media bucket.
- * Keep that folder private — it contains messages and donation details.
+ * Keep that folder private — it contains contact messages.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -21,8 +21,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const TABLES = [
   "posts",
   "team_members",
+  "programs",
   "messages",
-  "donations",
   "activity_log",
   "admins",
 ];

@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch with GENE-INDIA Foundation - for mentorship, volunteering, partnerships, or donation queries.",
+    "Get in touch with GENE-INDIA Foundation - for mentorship, volunteering, or partnerships.",
 };
 
 export default function ContactPage() {
@@ -24,7 +24,7 @@ export default function ContactPage() {
       </div>
 
       <section className="wrap">
-        <div className="cols" data-reveal>
+        <div className="cols">
           <div className="panel">
             <ContactForm />
           </div>

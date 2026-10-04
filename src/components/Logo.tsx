@@ -45,22 +45,32 @@ export function LogoLockup({ className = "lockup" }: { className?: string }) {
   );
 }
 
-/** Full lock-up including the arc and strapline - for the login screen. */
+/**
+ * Full lock-up including the arc and strapline - header and footer. One small
+ * pre-sized WebP (400px wide, enough for the footer on a high-density screen)
+ * shared by both, rather than an on-the-fly resized copy per size: one
+ * download, cached by the browser, and no image-optimisation work on Netlify.
+ */
 export function LogoFull({
   className = "logo-full",
   width = 260,
+  priority = false,
 }: {
   className?: string;
   width?: number;
+  priority?: boolean;
 }) {
   return (
-    <Image
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       className={className}
-      src="/brand/logo-full.png"
+      src="/brand/logo-full.webp"
       alt="GENE-INDIA Foundation - Building equity through education"
       width={width}
-      height={Math.round((width * 1085) / 1200)}
-      priority
+      height={Math.round((width * 361) / 400)}
+      fetchPriority={priority ? "high" : undefined}
+      loading={priority ? undefined : "lazy"}
+      decoding="async"
     />
   );
 }

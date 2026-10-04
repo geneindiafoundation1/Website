@@ -1,42 +1,25 @@
 -- ---------------------------------------------------------------------------
--- GENE-INDIA Foundation - admin roles
+-- GENE-INDIA Foundation - admin access
 -- Run in the Supabase SQL editor AFTER hardening.sql. Safe to re-run.
 --
--- Two kinds of member:
+-- One kind of member: everyone on the allow-list (public.admins) has full
+-- access - write, edit and delete blog posts, team members and programs; read
+-- and delete messages; empty the trash.
 --
---   owner   - full access: write, edit and delete blog posts and team members;
---             read, verify and delete messages and donations; empty the trash.
---   viewer  - read-only: can sign in and read messages and donations, but
---             cannot change anything.
+-- Adding someone: create their login in Supabase under Authentication → Users
+-- → Add user. They get full access automatically - no SQL, no code change.
 --
--- Adding someone: create their login in Supabase under Authentication → Users.
--- They become a viewer automatically - no SQL needed. Promote them only if they
--- genuinely need to publish:
---     update public.admins set role = 'owner' where email = 'them@example.com';
+-- IMPORTANT: because every account gets full access, public sign-up must be
+-- OFF (Authentication → Sign In / Providers → "Allow new users to sign up").
+-- Otherwise anyone could create an account and edit the site. Accounts added
+-- from the dashboard still work with sign-up switched off.
 -- ---------------------------------------------------------------------------
 
-alter table public.admins
-  add column if not exists role text not null default 'viewer';
-
--- The editor tier was removed; anyone who held it had full content rights, so
--- they become owners rather than being silently demoted.
-update public.admins set role = 'owner' where role = 'editor';
-
-alter table public.admins alter column role set default 'viewer';
-
-alter table public.admins drop constraint if exists admins_role_check;
-alter table public.admins
-  add constraint admins_role_check check (role in ('owner', 'viewer'));
-
--- The foundation needs at least one owner, or nobody can clear messages. If no
--- owner exists yet, promote the first account added to the allow-list - that is
--- the one created when the site was set up.
-update public.admins
-set role = 'owner'
-where user_id = (select user_id from public.admins order by created_at limit 1)
-  and not exists (select 1 from public.admins where role = 'owner');
-
-/* Can this account change content? Owners only - viewers are read-only. */
+/*
+ * The policies across the schema call can_edit() for writes and is_owner() for
+ * permanent deletes. With a single kind of member both simply mean "on the
+ * allow-list", so they defer to is_admin() and the policies stay unchanged.
+ */
 create or replace function public.can_edit()
 returns boolean
 language sql
@@ -44,13 +27,9 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (
-    select 1 from public.admins
-    where user_id = auth.uid() and role = 'owner'
-  );
+  select public.is_admin();
 $$;
 
-/* Super-admin: may permanently delete messages and donation records. */
 create or replace function public.is_owner()
 returns boolean
 language sql
@@ -58,18 +37,17 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (
-    select 1 from public.admins
-    where user_id = auth.uid() and role = 'owner'
-  );
+  select public.is_admin();
 $$;
 
 grant execute on function public.can_edit() to anon, authenticated;
 grant execute on function public.is_owner() to anon, authenticated;
 
--- ---------------------------- writes: owners -------------------------------
--- Reads stay with is_admin(), so viewers still see drafts, messages and
--- donations. Only the write policies tighten to can_edit().
+-- Earlier versions had owner and viewer roles. Everyone is now a full member.
+alter table public.admins drop constraint if exists admins_role_check;
+alter table public.admins drop column if exists role;
+
+-- ------------------------------ write policies ------------------------------
 
 drop policy if exists "staff manage posts" on public.posts;
 create policy "staff manage posts"
@@ -79,11 +57,6 @@ create policy "staff manage posts"
 drop policy if exists "staff manage team" on public.team_members;
 create policy "staff manage team"
   on public.team_members for all to authenticated
-  using (public.can_edit()) with check (public.can_edit());
-
-drop policy if exists "staff verify donations" on public.donations;
-create policy "staff verify donations"
-  on public.donations for update to authenticated
   using (public.can_edit()) with check (public.can_edit());
 
 drop policy if exists "staff upload media" on storage.objects;
@@ -102,52 +75,15 @@ create policy "staff delete media"
   on storage.objects for delete to authenticated
   using (bucket_id = 'media' and public.can_edit());
 
--- ------------------------ deleting records: owners -------------------------
--- Contact messages and donation reports are records of what people sent you,
--- and deleting one is permanent - there is no undo. Viewers can never delete.
-
 drop policy if exists "owners delete messages" on public.messages;
 drop policy if exists "staff delete messages" on public.messages;
 create policy "staff delete messages"
   on public.messages for delete to authenticated
   using (public.can_edit());
 
-drop policy if exists "owners delete donations" on public.donations;
-drop policy if exists "staff delete donations" on public.donations;
-create policy "staff delete donations"
-  on public.donations for delete to authenticated
-  using (public.can_edit());
-
--- ------------------- roles are assigned by SQL -----------------------------
--- There is no member-management screen in the admin panel: roles are set here,
--- deliberately, so that granting access always takes a decision in Supabase.
---
--- Give someone access (create their login under Authentication → Users first):
---     insert into public.admins (user_id, email, role)
---     select id, email, 'viewer' from auth.users where email = 'them@example.com'
---     on conflict (user_id) do update set role = 'viewer';
---
--- Promote or demote:
---     update public.admins set role = 'owner'  where email = 'them@example.com';
---     update public.admins set role = 'viewer' where email = 'them@example.com';
---
--- Revoke access entirely:
---     delete from public.admins where email = 'them@example.com';
---
--- See who has what:
---     select email, role from public.admins order by role, email;
---
--- If an earlier version of this file created the member-management functions,
--- they are no longer used and can be removed:
---     drop function if exists public.list_members();
---     drop function if exists public.set_member_role(uuid, text);
---     drop function if exists public.add_member_by_email(text, text);
-
--- ------------------ new logins start as viewers -----------------------------
+-- ------------------------- new logins get access ----------------------------
 -- Creating an account in Supabase Authentication is enough: this trigger adds
--- the person to the allow-list as a viewer, so they can sign in and read
--- messages and donations but change nothing. Promote to owner by hand when
--- someone actually needs to publish.
+-- the person to the allow-list.
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -156,9 +92,9 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.admins (user_id, email, role)
-  values (NEW.id, NEW.email, 'viewer')
-  on conflict (user_id) do nothing;   -- never demote an existing member
+  insert into public.admins (user_id, email)
+  values (NEW.id, NEW.email)
+  on conflict (user_id) do nothing;
   return NEW;
 end;
 $$;
@@ -169,6 +105,19 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- Catch up any account created before this trigger existed.
-insert into public.admins (user_id, email, role)
-select id, email, 'viewer' from auth.users
+insert into public.admins (user_id, email)
+select id, email from auth.users
 on conflict (user_id) do nothing;
+
+-- Member-management functions from an early version - no longer used.
+drop function if exists public.list_members();
+drop function if exists public.set_member_role(uuid, text);
+drop function if exists public.add_member_by_email(text, text);
+
+-- ------------------------------ managing access ------------------------------
+-- See who has access:
+--     select email, created_at from public.admins order by created_at;
+--
+-- Remove someone: delete their user under Authentication → Users (their
+-- allow-list entry goes with it), or keep the login but revoke access:
+--     delete from public.admins where email = 'them@example.com';

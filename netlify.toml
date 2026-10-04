@@ -7,5 +7,5 @@
 [build.environment]
   NODE_VERSION = "22"
 
-[functions]
-  directory = "netlify/functions"
+# The database keep-alive runs on GitHub Actions (.github/workflows/keep-alive.yml),
+# not as a Netlify scheduled function - that would cost compute credits.

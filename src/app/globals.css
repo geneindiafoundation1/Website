@@ -248,56 +248,8 @@ img {
 }
 
 /* ---------- motion ----------
-   Everything below animates transform/opacity only, so it stays on the GPU.
-   Reveal styles are scoped to .js-reveal, which ScrollReveal adds at runtime —
-   without JavaScript the content is simply visible. */
-
-.js-reveal [data-reveal] {
-  opacity: 0;
-  transform: translateY(12px);
-}
-
-.js-reveal [data-reveal].is-in {
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Children of a stagger container arrive in sequence. */
-.js-reveal [data-reveal].stagger.is-in > * {
-  animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.js-reveal [data-reveal].stagger.is-in > *:nth-child(1) { animation-delay: 0.04s; }
-.js-reveal [data-reveal].stagger.is-in > *:nth-child(2) { animation-delay: 0.12s; }
-.js-reveal [data-reveal].stagger.is-in > *:nth-child(3) { animation-delay: 0.2s; }
-.js-reveal [data-reveal].stagger.is-in > *:nth-child(4) { animation-delay: 0.28s; }
-.js-reveal [data-reveal].stagger.is-in > *:nth-child(5) { animation-delay: 0.36s; }
-.js-reveal [data-reveal].stagger.is-in > *:nth-child(6) { animation-delay: 0.44s; }
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Hero load sequence — runs once, on arrival. */
-.hero-seq > * {
-  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.hero-seq > *:nth-child(1) { animation-delay: 0.05s; }
-.hero-seq > *:nth-child(2) { animation-delay: 0.16s; }
-.hero-seq > *:nth-child(3) { animation-delay: 0.28s; }
-.hero-seq > *:nth-child(4) { animation-delay: 0.4s; }
-
-.hero-card {
-  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
-}
+   Content is never hidden waiting for JavaScript or an entrance animation:
+   text renders fully on first paint. Only the decorative canvases fade in. */
 
 @keyframes fade-in {
   from {
@@ -309,8 +261,6 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-seq > *,
-  .hero-card,
   .ambient {
     animation: none;
   }
@@ -504,21 +454,6 @@ footer {
   margin-top: 3px;
   border-radius: 2px;
 }
-/* Staff route, so it sits quieter than the nav proper — present, not competing
-   with Donate. In the mobile menu it appears as a plain nav item instead. */
-.top-login {
-  color: var(--ink-faint);
-  text-decoration: none;
-  font-size: 0.86rem;
-  font-weight: 500;
-  white-space: nowrap;
-  padding: 0.45rem 0.2rem;
-  transition: color 0.15s;
-}
-.top-login:hover {
-  color: var(--ink);
-}
-
 .menu-btn {
   display: none;
 }
@@ -1595,21 +1530,6 @@ textarea {
   font-size: 0.92rem;
   letter-spacing: -0.01em;
 }
-.qr-row {
-  display: flex;
-  gap: 1.4rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
-}
-.qr {
-  width: 168px;
-  height: 168px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  padding: 10px;
-}
 
 /* ---------- hover refinements ---------- */
 a.card {
@@ -1676,7 +1596,7 @@ a.card:hover {
   opacity: 0;
 }
 /* With the indicator present, the per-link underline would double up. */
-.nav:has(.nav-ink) a[aria-current="page"]::after {
+.nav:has(.nav-ink[data-ready="true"]) a[aria-current="page"]::after {
   display: none;
 }
 
@@ -1690,7 +1610,7 @@ a.card:hover {
   .nav-ink {
     display: none;
   }
-  .nav:has(.nav-ink) a[aria-current="page"]::after {
+  .nav:has(.nav-ink[data-ready="true"]) a[aria-current="page"]::after {
     display: none;
   }
 }
@@ -1792,6 +1712,18 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+}
+.made-by a {
+  /* Near-white in dark mode, near-black in light - stands out from the grey line. */
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.made-by a:hover {
+  color: var(--brand);
+  text-decoration-color: currentColor;
 }
 /* The one warm mark on a blue page — left red rather than themed. */
 .made-by .heart {
@@ -1959,11 +1891,6 @@ footer {
   border-radius: 5px;
   padding: 0.6rem 0.7rem;
   width: 100%;
-}
-
-.donate-legal {
-  margin-top: 2rem;
-  text-align: center;
 }
 
 /* ---------- legal pages ---------- */
@@ -2330,20 +2257,6 @@ footer {
     font-weight: 700;
     letter-spacing: 0.02em;
   }
-  /* Keep the label solid white on navy in both themes. Theme tokens otherwise
-     put faint ink on a pale blue, which is hard to read in the overlay. */
-  .nav a.nav-donate {
-    background: #0d3660;
-    color: #ffffff;
-  }
-  .nav a.nav-donate:hover {
-    background: #082844;
-    color: #ffffff;
-  }
-  .top > .wrap > .btn-primary,
-  .top-login {
-    display: none;
-  }
   .two {
     grid-template-columns: 1fr;
   }
@@ -2356,9 +2269,156 @@ footer {
   }
 }
 
-@media (min-width: 761px) {
-  .nav .nav-donate,
-  .nav .nav-login {
-    display: none;
+/* ---------- programs ---------- */
+.program-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+.program-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.18s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s;
+}
+.program-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.program-card:hover h3 {
+  color: var(--brand);
+}
+.program-thumb {
+  background: var(--surface-2);
+  min-height: 100%;
+}
+.program-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+  display: block;
+}
+.program-card-body {
+  padding: 1.4rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.program-card-body h3 {
+  font-size: var(--step-1);
+}
+.program-tagline {
+  font-family: var(--f-display);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+.program-facts {
+  color: var(--ink-faint);
+  font-size: 0.86rem;
+}
+.program-more {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.program-more::after {
+  content: " →";
+}
+
+.programs {
+  display: flex;
+  flex-direction: column;
+}
+.program {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(1.8rem, 5vw, 4rem);
+  align-items: start;
+  scroll-margin-top: calc(var(--top-h) + 24px);
+}
+.program + .program {
+  margin-top: var(--sec);
+  padding-top: var(--sec);
+  border-top: 1px solid var(--line);
+}
+.program-poster {
+  position: sticky;
+  top: calc(var(--top-h) + 28px);
+}
+.program-poster img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.program-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.program-copy h2 {
+  font-size: var(--step-3);
+}
+.program-copy .tags {
+  margin: 0;
+}
+.program-gains {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: gain;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.program-gains li {
+  counter-increment: gain;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  column-gap: 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.program-gains li::before {
+  content: counter(gain);
+  grid-row: span 2;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--on-brand);
+  display: grid;
+  place-items: center;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.program-gains strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+@media (max-width: 760px) {
+  .program,
+  .program-card {
+    grid-template-columns: 1fr;
+  }
+  .program-poster {
+    position: static;
+    max-width: 480px;
+  }
+  .program-thumb {
+    aspect-ratio: 16 / 10;
   }
 }

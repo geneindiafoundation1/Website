@@ -80,7 +80,7 @@ export default function AboutPage() {
       </div>
 
       <div className="wrap acro-wrap">
-        <div className="acro-strip stagger" data-reveal>
+        <div className="acro-strip">
           {ACRONYM.map((a, i) => (
             <div key={i}>
               <b aria-hidden="true">{a.letter}</b>
@@ -92,7 +92,7 @@ export default function AboutPage() {
       </div>
 
       <section className="wrap vm-sec">
-        <div className="vm-grid stagger" data-reveal>
+        <div className="vm-grid">
           <div className="panel panel-titled">
             <p className="eyebrow">Vision</p>
             <p className="panel-body">
@@ -111,7 +111,7 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
-        <p className="flag vm-flag" data-reveal>
+        <p className="flag vm-flag">
           As an apolitical and non-religious organization, we are committed to a safe, inclusive, and
           intellectually vibrant environment where diversity is celebrated and ideas are freely
           exchanged.
@@ -119,7 +119,7 @@ export default function AboutPage() {
       </section>
 
       <section className="wrap about-story">
-        <div className="story-grid" data-reveal>
+        <div className="story-grid">
           <div className="story-aside">
             <p className="eyebrow">Our story</p>
             <h2>A vision born from responsibility</h2>
@@ -169,7 +169,7 @@ export default function AboutPage() {
       <hr className="rule" />
 
       <section className="wrap">
-        <div className="sec-head" data-reveal>
+        <div className="sec-head">
           <p className="eyebrow">Objectives</p>
           <h2>Five commitments that shape everything we do</h2>
           <p className="lede">
@@ -177,7 +177,7 @@ export default function AboutPage() {
             Foundation was built, and the measure we hold every program against.
           </p>
         </div>
-        <div className="obj-grid stagger" data-reveal>
+        <div className="obj-grid">
           {OBJECTIVES.map((o, i) => (
             <article className="obj-card" key={o.title}>
               <span className="obj-card-n" aria-hidden="true">
@@ -192,11 +192,11 @@ export default function AboutPage() {
 
       <div className="band">
         <section className="wrap">
-          <div className="sec-head" data-reveal>
+          <div className="sec-head">
             <p className="eyebrow">Through our programs, we aim to</p>
             <h2>Foster excellence, and build the networks that carry it forward</h2>
           </div>
-          <div className="grid-3 stagger" data-reveal>
+          <div className="grid-3">
             {AIMS.map((a) => (
               <div className="card" key={a.title}>
                 <h3>{a.title}</h3>
@@ -207,21 +207,21 @@ export default function AboutPage() {
         </section>
       </div>
 
-      <section className="wrap center" data-reveal>
+      <section className="wrap center">
         <p className="eyebrow">Be part of it</p>
         <h2 style={{ fontSize: "var(--step-3)", maxWidth: "22ch" }}>
           Every door opened begins with someone willing to open it.
         </h2>
         <p className="lede">
-          Whether you mentor a student, share your expertise, or support the Foundation directly -
-          you become part of the bridge we&rsquo;re building.
+          Whether you mentor a student or share your expertise - you become part of the bridge
+          we&rsquo;re building.
         </p>
         <div className="cta-row">
-          <Link className="btn btn-primary btn-lg" href="/donate">
-            Support a mentee
-          </Link>
-          <Link className="btn btn-ghost btn-lg" href="/contact">
+          <Link prefetch={false} className="btn btn-primary btn-lg" href="/contact">
             Volunteer as a mentor
+          </Link>
+          <Link prefetch={false} className="btn btn-ghost btn-lg" href="/team">
+            Meet the team
           </Link>
         </div>
       </section>

@@ -22,8 +22,6 @@ alter table public.team_members add column if not exists deleted_at timestamptz;
 alter table public.team_members add column if not exists deleted_by uuid;
 alter table public.messages     add column if not exists deleted_at timestamptz;
 alter table public.messages     add column if not exists deleted_by uuid;
-alter table public.donations    add column if not exists deleted_at timestamptz;
-alter table public.donations    add column if not exists deleted_by uuid;
 
 create index if not exists posts_live_idx on public.posts (deleted_at);
 create index if not exists team_live_idx on public.team_members (deleted_at);
@@ -42,8 +40,7 @@ create policy "team is publicly readable when published"
 
 -- Soft-deleting and restoring are UPDATEs, so messages needs an update policy -
 -- without one the database silently refuses the change and the button does
--- nothing. (Posts and team members are covered by their "for all" policies, and
--- donations by the verify policy.)
+-- nothing. (Posts and team members are covered by their "for all" policies.)
 drop policy if exists "staff update messages" on public.messages;
 create policy "staff update messages"
   on public.messages for update to authenticated
@@ -57,13 +54,6 @@ create policy "owners purge messages"
   on public.messages for delete to authenticated
   using (public.is_owner());
 
-drop policy if exists "staff delete donations" on public.donations;
-drop policy if exists "owners delete donations" on public.donations;
-drop policy if exists "owners purge donations" on public.donations;
-create policy "owners purge donations"
-  on public.donations for delete to authenticated
-  using (public.is_owner());
-
 -- ----------------------------- activity log --------------------------------
 
 create table if not exists public.activity_log (
@@ -72,7 +62,7 @@ create table if not exists public.activity_log (
   actor_kind  text not null default 'admin',   -- always 'admin'; visitors are not logged
   actor_email text,               -- the signed-in account's email
   action      text not null,      -- created | updated | trashed | restored | purged
-  entity      text not null,      -- posts | team_members | messages | donations
+  entity      text not null,      -- posts | team_members | messages
   entity_id   uuid,
   label       text,               -- human-readable name of the row, e.g. a post title
   changes     jsonb,              -- { field: { from: …, to: … } } for edits
@@ -120,7 +110,7 @@ begin
   /*
    * The log exists to hold the foundation's own team accountable, so it records
    * signed-in accounts only. Public form submissions are skipped: a contact
-   * message or donation report is already stored in full in its own table, and
+   * message is already stored in full in its own table, and
    * copying it here would duplicate the data to no purpose.
    */
   if auth.uid() is null then
@@ -211,14 +201,9 @@ create trigger messages_activity
   after insert or update or delete on public.messages
   for each row execute function public.log_activity();
 
-drop trigger if exists donations_activity on public.donations;
-create trigger donations_activity
-  after insert or update or delete on public.donations
-  for each row execute function public.log_activity();
-
 -- ---------------------- clear duplicated visitor rows ----------------------
 -- Earlier versions logged public form submissions too. Those rows duplicate
--- what is already held in `messages` and `donations`, so they are removed.
+-- what is already held in `messages`, so they are removed.
 -- Nothing about your team's own actions is touched: every admin entry has an
 -- actor_id, and only rows without one are deleted.
 

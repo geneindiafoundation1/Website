@@ -8,7 +8,8 @@ export const metadata: Metadata = {
     "Notes from our mentors, updates from our programs, and guidance for students finding their way.",
 };
 
-export const revalidate = 60;
+// Static until the admin panel changes its content (revalidatePath) - no timed rebuilds.
+export const revalidate = false;
 
 export default async function BlogPage() {
   const posts = await getPosts();
@@ -28,7 +29,7 @@ export default async function BlogPage() {
 
       <section className="wrap">
         {posts.length ? (
-          <div className="posts stagger" data-reveal>
+          <div className="posts">
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}

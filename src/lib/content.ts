@@ -1,8 +1,8 @@
 import { memberVideos } from "./member-videos";
-import { seedPosts, seedTeam } from "./seed";
+import { seedPosts, seedPrograms, seedTeam } from "./seed";
 import { missingDeletedAt, selectLive } from "./supabase/live";
-import { getServerSupabase } from "./supabase/server";
-import type { Member, Post } from "./types";
+import { getPublicSupabase, getServerSupabase } from "./supabase/server";
+import type { Member, Post, Program } from "./types";
 
 /** Former members who must not appear on the site, even if a leftover row remains in the database. */
 const RETIRED_MEMBER_SLUGS = new Set(["faisal-kawoosa"]);
@@ -30,7 +30,8 @@ function scrubRetiredCopy(post: Post): Post {
  */
 
 export async function getPosts({ includeDrafts = false } = {}): Promise<Post[]> {
-  const supabase = await getServerSupabase();
+  // Drafts are visible only to signed-in staff, so only then is the session needed.
+  const supabase = includeDrafts ? await getServerSupabase() : getPublicSupabase();
   if (!supabase) {
     return seedPosts.filter((p) => includeDrafts || p.published);
   }
@@ -50,7 +51,7 @@ export async function getPosts({ includeDrafts = false } = {}): Promise<Post[]> 
 }
 
 export async function getPost(slug: string): Promise<Post | null> {
-  const supabase = await getServerSupabase();
+  const supabase = getPublicSupabase();
   if (!supabase) {
     return seedPosts.find((p) => p.slug === slug && p.published) ?? null;
   }
@@ -66,7 +67,7 @@ export async function getPost(slug: string): Promise<Post | null> {
 }
 
 export async function getTeam({ includeDrafts = false } = {}): Promise<Member[]> {
-  const supabase = await getServerSupabase();
+  const supabase = includeDrafts ? await getServerSupabase() : getPublicSupabase();
   if (!supabase) {
     // Match the ordering the database query applies, so the fallback looks identical.
     return liveTeam(
@@ -86,6 +87,38 @@ export async function getTeam({ includeDrafts = false } = {}): Promise<Member[]>
     return liveTeam(seedTeam.filter((m) => includeDrafts || m.published));
   }
   return liveTeam(data as Member[]);
+}
+
+export async function getPrograms({ includeDrafts = false } = {}): Promise<Program[]> {
+  const fallback = () =>
+    seedPrograms
+      .filter((p) => includeDrafts || p.published)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+  const supabase = includeDrafts ? await getServerSupabase() : getPublicSupabase();
+  if (!supabase) return fallback();
+
+  const { data, error } = await selectLive<Program>(async (filterTrashed) => {
+    let query = supabase.from("programs").select("*");
+    if (filterTrashed) query = query.is("deleted_at", null);
+    query = query.order("sort_order", { ascending: true });
+    if (!includeDrafts) query = query.eq("published", true);
+    return query;
+  });
+  // Until supabase/programs.sql has been run the table does not exist; show the seed programs.
+  if (error) {
+    const missingTable = error.code === "PGRST205" || error.code === "42P01";
+    if (!missingTable) console.error("getPrograms:", error.message);
+    return fallback();
+  }
+  return data;
+}
+
+/** "When: Once a month" → { label: "When", value: "Once a month" }. Lines without a colon have no label. */
+export function splitLine(line: string): { label: string; value: string } {
+  const at = line.indexOf(":");
+  if (at <= 0) return { label: "", value: line.trim() };
+  return { label: line.slice(0, at).trim(), value: line.slice(at + 1).trim() };
 }
 
 /** "2026-07-12" → "12 July 2026" */

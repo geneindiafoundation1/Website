@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/content";
+import { thumbUrl } from "@/lib/thumb";
 import type { Post } from "@/lib/types";
 
 /** Deterministic gradient variant so a post looks the same on every render. */
@@ -12,12 +13,12 @@ export function thumbClass(slug: string) {
 
 export function PostCard({ post }: { post: Post }) {
   return (
-    <Link className="post" href={`/blog/${post.slug}`}>
+    <Link prefetch={false} className="post" href={`/blog/${post.slug}`}>
       <div className={thumbClass(post.slug)}>
         {post.cover_url ? (
           // Covers come from Supabase storage; plain <img> keeps this free of loader config.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={post.cover_url} alt={post.title} loading="lazy" />
+          <img src={thumbUrl(post.cover_url)} alt={post.title} loading="lazy" />
         ) : null}
       </div>
       <div className="meta">

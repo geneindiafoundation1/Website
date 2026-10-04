@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
 /** Netlify often stores the surrounding quotes if they were pasted in. */
@@ -24,40 +23,18 @@ function recipients() {
     .filter(Boolean);
 }
 
-function smtpReady() {
-  return Boolean(env("SMTP_HOST") && env("SMTP_USER") && env("SMTP_PASS") && recipients().length);
-}
-
 function resendReady() {
   return Boolean(env("RESEND_API_KEY") && recipients().length);
 }
 
 export function emailEnabled() {
-  return smtpReady() || resendReady();
+  return resendReady();
 }
 
 type Mail = { to: string | string[]; subject: string; html: string; replyTo?: string };
 
+/** All mail goes through Resend (resend.com). EMAIL_FROM must be on a domain verified there. */
 async function send({ to: recipient, subject, html, replyTo }: Mail) {
-  if (smtpReady()) {
-    const port = Number(env("SMTP_PORT")) || 465;
-    const secure = env("SMTP_SECURE") ? env("SMTP_SECURE") !== "false" : port === 465;
-    const transporter = nodemailer.createTransport({
-      host: env("SMTP_HOST"),
-      port,
-      secure,
-      auth: { user: env("SMTP_USER"), pass: env("SMTP_PASS") },
-    });
-    await transporter.sendMail({
-      from: fromAddress(),
-      to: recipient,
-      subject,
-      html,
-      replyTo,
-    });
-    return;
-  }
-
   const apiKey = env("RESEND_API_KEY");
   if (!apiKey || !recipients().length) {
     console.info(`[email disabled] would send "${subject}" to ${recipient}`);
@@ -118,48 +95,6 @@ export async function sendContactEmails(data: {
        <blockquote style="margin:8px 0 0;padding-left:14px;border-left:3px solid #c2611f;color:#4e5a56;white-space:pre-wrap">${esc(
          data.message,
        )}</blockquote>`,
-    ),
-  });
-}
-
-export async function sendDonationEmails(data: {
-  name: string;
-  email: string;
-  amount: number;
-  mode: string;
-  reference: string;
-  note: string;
-}) {
-  const amount = `₹${data.amount.toLocaleString("en-IN")}`;
-
-  await send({
-    to: recipients(),
-    replyTo: data.email,
-    subject: `Donation reported - ${amount} from ${data.name}`,
-    html: shell(
-      "A donor has reported a contribution",
-      row("Name", data.name) +
-        row("Email", data.email) +
-        row("Amount", amount) +
-        row("Paid via", data.mode) +
-        row("Reference", data.reference || "-") +
-        (data.note ? `<p style="margin:16px 0 0;white-space:pre-wrap">${esc(data.note)}</p>` : "") +
-        `<p style="margin:20px 0 0;padding:12px;background:#f4f5f2;border-left:3px solid #c2611f;font-size:14px">
-           Verify this amount against the bank statement before issuing an 80G receipt.
-         </p>`,
-    ),
-  });
-
-  await send({
-    to: data.email,
-    subject: "Thank you for supporting GENE-INDIA Foundation",
-    html: shell(
-      `Thank you, ${esc(data.name.split(" ")[0])}`,
-      `<p style="margin:0 0 12px">We're grateful for your contribution of <strong>${amount}</strong> via ${esc(
-        data.mode,
-      )}.</p>
-       <p style="margin:0 0 12px">Because we accept donations directly to our bank and UPI, there are no transaction fees - 100% of what you gave goes to running volunteer-led mentorship programs for students across India.</p>
-       <p style="margin:0;color:#4e5a56">Our team will verify the transfer and follow up with your official receipt.</p>`,
     ),
   });
 }

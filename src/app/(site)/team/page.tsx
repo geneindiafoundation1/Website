@@ -4,6 +4,7 @@ import { FieldGlyph } from "@/components/FieldGlyph";
 import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { glyphFor } from "@/lib/field-glyph";
 import { getTeam } from "@/lib/content";
+import { thumbUrl } from "@/lib/thumb";
 
 export const metadata: Metadata = {
   title: "Team",
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
     "The directors and volunteers guiding GENE-INDIA Foundation - professionals from medicine and science.",
 };
 
-export const revalidate = 60;
+// Static until the admin panel changes its content (revalidatePath) - no timed rebuilds.
+export const revalidate = false;
 
 function initials(name: string) {
   return name
@@ -41,7 +43,7 @@ export default async function TeamPage() {
 
       <section className="wrap" style={{ paddingTop: 0 }}>
         {team.map((member) => (
-          <article className="person" key={member.id} data-reveal>
+          <article className="person" key={member.id}>
             <div className="person-head">
               <h3>{member.name}</h3>
               <p className="role">{member.role}</p>
@@ -60,7 +62,7 @@ export default async function TeamPage() {
               <div className="avatar" aria-hidden={!member.photo_url}>
                 {member.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={member.photo_url} alt={member.name} loading="lazy" />
+                  <img src={thumbUrl(member.photo_url)} alt={member.name} loading="lazy" />
                 ) : (
                   initials(member.name)
                 )}
@@ -88,7 +90,7 @@ export default async function TeamPage() {
       </section>
 
       <div className="band">
-        <section className="wrap band-split" data-reveal>
+        <section className="wrap band-split">
           <div>
             <h2 style={{ fontSize: "var(--step-2)" }}>Mentor a student</h2>
             <p style={{ marginTop: ".5rem", maxWidth: "52ch" }}>
@@ -96,7 +98,7 @@ export default async function TeamPage() {
               If that sounds like you, we&rsquo;d like to hear from you.
             </p>
           </div>
-          <Link className="btn btn-primary btn-lg" href="/contact">
+          <Link prefetch={false} className="btn btn-primary btn-lg" href="/contact">
             Volunteer with us
           </Link>
         </section>

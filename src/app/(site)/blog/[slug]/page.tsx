@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { thumbClass } from "@/components/PostCard";
 import { formatDate, getPost, getPosts, parseBody } from "@/lib/content";
+import { responsiveSrcSet } from "@/lib/thumb";
 
-export const revalidate = 60;
+// Static until the admin panel changes its content (revalidatePath) - no timed rebuilds.
+export const revalidate = false;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -38,7 +40,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <section className="wrap">
       <article className="article">
-        <Link className="back" href="/blog">
+        <Link prefetch={false} className="back" href="/blog">
           ← All posts
         </Link>
 
@@ -55,7 +57,12 @@ export default async function PostPage({ params }: Props) {
         <div className={thumbClass(post.slug)}>
           {post.cover_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={post.cover_url} alt={post.title} />
+            <img
+              src={post.cover_url}
+              srcSet={responsiveSrcSet(post.cover_url, 720)}
+              sizes="(max-width: 760px) 100vw, 680px"
+              alt={post.title}
+            />
           ) : null}
         </div>
 
@@ -66,12 +73,12 @@ export default async function PostPage({ params }: Props) {
         </div>
 
         <hr className="rule" style={{ marginBlock: "2.5rem 2rem" }} />
-        <p className="eyebrow">Support this work</p>
+        <p className="eyebrow">Get involved</p>
         <p style={{ color: "var(--ink-soft)", marginBlock: ".7rem 1.2rem" }}>
-          Every rupee goes directly to running volunteer-led mentorship programs.
+          Share your experience with students across India as a volunteer mentor.
         </p>
-        <Link className="btn btn-primary" href="/donate">
-          Donate
+        <Link prefetch={false} className="btn btn-primary" href="/contact">
+          Volunteer as a mentor
         </Link>
       </article>
     </section>

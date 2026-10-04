@@ -18,8 +18,8 @@ type Entry = {
 const ENTITY_NAMES: Record<string, string> = {
   posts: "blog post",
   team_members: "team member",
+  programs: "program",
   messages: "message",
-  donations: "donation",
 };
 
 const ACTION_WORDS: Record<string, string> = {

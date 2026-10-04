@@ -138,26 +138,33 @@ const LAND = [EURASIA, AFRICA, NORTH_AMERICA, SOUTH_AMERICA, AUSTRALIA, GREENLAN
 
 /**
  * India, traced as a single ring so it can be picked out of the landmass and
- * drawn in its own colour. Clockwise from the north-west: along the Himalaya,
- * round the north-east, back west above Bangladesh (the loop dips inward
- * rather than using a hole, which keeps the ray cast planar), down the east
+ * drawn in its own colour, following the official map of India - all of
+ * Jammu & Kashmir and Ladakh, including Gilgit-Baltistan, the north up to the
+ * Wakhan, and Aksai Chin. Clockwise from the north-west: across the Karakoram
+ * and Aksai Chin, south along the Himalaya, round the north-east, back west
+ * above Bangladesh (the loop dips inward rather than using a hole, which keeps
+ * the ray cast planar), down the east
  * coast to Kanyakumari, and up the west coast through Gujarat.
  *
  * Coarse by design - at the globe's sampling step nothing finer survives.
  */
 const INDIA = [
-  73.9, 34.6, 75.0, 35.3, 76.8, 35.6, 78.3, 35.4, 79.6, 34.3, 79.2, 32.6, 78.7, 31.0,
+  // Jammu & Kashmir and Ladakh: up the western edge, across Gilgit-Baltistan to
+  // the Wakhan, along the Karakoram, round Aksai Chin, and down to Himachal.
+  73.4, 34.0, 73.6, 34.8, 72.6, 35.8, 73.2, 36.4, 73.8, 36.9, 74.6, 37.1, 75.4, 36.9,
+  76.0, 36.5, 77.0, 35.9, 77.8, 35.5, 78.6, 35.9, 79.6, 36.0, 80.3, 35.6, 80.2, 35.2,
+  79.9, 34.3, 79.4, 33.2, 78.8, 32.6, 78.7, 31.0,
   81.0, 30.3, 83.0, 29.3, 85.0, 28.3, 88.1, 27.9, 89.1, 27.2, 92.1, 27.5, 94.5, 29.3,
   96.5, 29.0, 97.4, 28.2, 96.8, 27.2, 95.3, 26.6, 94.6, 25.2, 94.3, 23.9, 93.3, 22.2,
   92.6, 21.9, 92.2, 23.7, 91.2, 22.9, 89.9, 25.3, 88.1, 26.4, 88.2, 24.5, 88.1, 23.2,
   88.9, 21.6, 87.0, 21.5, 85.0, 19.8, 82.3, 16.9, 80.3, 15.8, 80.2, 13.1, 79.8, 10.3,
   77.5, 8.1, 76.0, 9.5, 74.8, 13.0, 73.3, 16.0, 72.8, 19.0, 72.6, 21.5, 69.0, 22.0,
-  68.2, 23.8, 70.0, 24.3, 71.0, 27.5, 73.0, 29.9, 74.6, 32.5,
+  68.2, 23.8, 70.0, 24.3, 71.0, 27.5, 73.0, 29.9, 74.6, 32.5, 74.0, 32.9, 73.6, 33.4,
 ];
 
 function isIndia(lon: number, lat: number): boolean {
   // Cheap reject first - the ring test runs for every grid point on the globe.
-  if (lon < 68 || lon > 98 || lat < 6 || lat > 36) return false;
+  if (lon < 68 || lon > 98 || lat < 6 || lat > 37.5) return false;
   return inside(lon, lat, INDIA);
 }
 
@@ -229,7 +236,7 @@ export function landDots(stepDeg = 2.9): Vec[] {
  */
 export function indiaDots(stepDeg = 1.35): Vec[] {
   const pts: Vec[] = [];
-  for (let lat = 6; lat <= 36; lat += stepDeg) {
+  for (let lat = 6; lat <= 37.5; lat += stepDeg) {
     const c = Math.cos((lat * Math.PI) / 180);
     const lonStep = stepDeg / Math.max(c, 0.08);
     for (let lon = 68; lon <= 98; lon += lonStep) {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { site } from "@/lib/site";
 
 /**
- * Shared shell for the privacy, terms, and refund pages - same page head,
+ * Shared shell for the privacy and terms pages - same page head,
  * same measure, same "last updated" line, so the three read as one set.
  *
  * Sections are numbered from the array rather than by hand, so inserting one
@@ -56,9 +56,9 @@ export function LegalPage({
         <p className="legal-foot">
           Questions about this policy? Email{" "}
           <a href={`mailto:${site.legal.contactEmail}`}>{site.legal.contactEmail}</a> or use the{" "}
-          <Link href="/contact">contact form</Link>. See also our{" "}
-          <Link href="/privacy">Privacy Policy</Link>, <Link href="/terms">Terms &amp; Conditions</Link>,
-          and <Link href="/refund-policy">Refund &amp; Cancellation Policy</Link>.
+          <Link prefetch={false} href="/contact">contact form</Link>. See also our{" "}
+          <Link prefetch={false} href="/privacy">Privacy Policy</Link> and{" "}
+          <Link prefetch={false} href="/terms">Terms &amp; Conditions</Link>.
         </p>
       </section>
     </>

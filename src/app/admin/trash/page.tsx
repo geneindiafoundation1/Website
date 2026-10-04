@@ -1,8 +1,6 @@
 import { SetupNotice } from "../SetupNotice";
-import { NoPermission } from "../NoPermission";
 import { ConfirmSubmit } from "../ConfirmSubmit";
 import { purgeItem, restoreItem } from "../actions";
-import { canEdit, isOwner } from "@/lib/admin-role";
 import { formatDateTime } from "@/lib/content";
 import { supabaseEnabled } from "@/lib/supabase/config";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -12,7 +10,7 @@ export const dynamic = "force-dynamic";
 type Trashed = {
   id: string;
   label: string;
-  table: "posts" | "team_members" | "messages" | "donations";
+  table: "posts" | "team_members" | "programs" | "messages";
   kind: string;
   deleted_at: string;
 };
@@ -20,16 +18,14 @@ type Trashed = {
 const SOURCES = [
   { table: "posts" as const, kind: "Blog post", label: "title" },
   { table: "team_members" as const, kind: "Team member", label: "name" },
+  { table: "programs" as const, kind: "Program", label: "title" },
   { table: "messages" as const, kind: "Message", label: "name" },
-  { table: "donations" as const, kind: "Donation", label: "name" },
 ];
 
 export default async function AdminTrash() {
   if (!supabaseEnabled) return <SetupNotice />;
-  if (!(await canEdit())) return <NoPermission what="see the trash" />;
 
   const supabase = await getServerSupabase();
-  const owner = await isOwner();
 
   const groups = await Promise.all(
     SOURCES.map(async (source) => {
@@ -85,18 +81,16 @@ export default async function AdminTrash() {
                     Restore
                   </button>
                 </form>
-                {owner ? (
-                  <form action={purgeItem}>
-                    <input type="hidden" name="id" value={item.id} />
-                    <input type="hidden" name="table" value={item.table} />
-                    <ConfirmSubmit
-                      className="btn btn-danger btn-sm"
-                      confirmText={`Delete "${item.label}" forever? This cannot be undone.`}
-                    >
-                      Delete forever
-                    </ConfirmSubmit>
-                  </form>
-                ) : null}
+                <form action={purgeItem}>
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="table" value={item.table} />
+                  <ConfirmSubmit
+                    className="btn btn-danger btn-sm"
+                    confirmText={`Delete "${item.label}" forever? This cannot be undone.`}
+                  >
+                    Delete forever
+                  </ConfirmSubmit>
+                </form>
               </div>
             </div>
           ))
@@ -105,9 +99,8 @@ export default async function AdminTrash() {
 
       {items.length > 0 ? (
         <p className="hint" style={{ marginTop: "1rem" }}>
-          {owner
-            ? "Items stay here indefinitely and can be restored at any time. Delete forever destroys a record outright - there is no way to get it back."
-            : "Items stay here indefinitely and can be restored at any time. Only an owner can delete something permanently."}
+          Items stay here indefinitely and can be restored at any time. Delete forever destroys a
+          record outright - there is no way to get it back.
         </p>
       ) : null}
     </>

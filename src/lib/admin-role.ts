@@ -1,47 +1,32 @@
 import { getServerSupabase } from "./supabase/server";
 
 /**
- * Which kind of admin is signed in.
+ * Is the signed-in account on the admin allow-list?
  *
- * "owner" has full access; "viewer" is read-only; null means the account is
- * signed in but not on the allow-list at all. The database enforces this too -
- * this is what lets the interface explain the rule rather than fail at it.
+ * There is a single kind of member: everyone on the list has full access.
+ * Accounts created in Supabase → Authentication → Users are added to the list
+ * automatically (see supabase/roles.sql). The database enforces this too - this
+ * check lets the interface explain the rule rather than fail at it.
  */
-export type AdminRole = "owner" | "viewer" | null;
-
-export async function getAdminRole(): Promise<AdminRole> {
+export async function isAdmin(): Promise<boolean> {
   const supabase = await getServerSupabase();
-  if (!supabase) return null;
+  if (!supabase) return false;
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) return false;
 
   // The allow-list lets each member read their own row, and no one else's.
   const { data, error } = await supabase
     .from("admins")
-    .select("role")
+    .select("user_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
   if (error) {
-    // Before roles.sql has been run there is no `role` column; treat a listed
-    // account as an owner so an un-migrated project keeps working.
-    console.error("getAdminRole:", error.message);
-    return "owner";
+    console.error("isAdmin:", error.message);
+    return false;
   }
-
-  if (!data) return null;
-  // "editor" no longer exists, but tolerate it until roles.sql has been re-run.
-  return data.role === "viewer" ? "viewer" : "owner";
-}
-
-export async function canEdit(): Promise<boolean> {
-  return (await getAdminRole()) === "owner";
-}
-
-/** Super admin - permitted to permanently delete messages and donations. */
-export async function isOwner(): Promise<boolean> {
-  return (await getAdminRole()) === "owner";
+  return Boolean(data);
 }

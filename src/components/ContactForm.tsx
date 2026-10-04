@@ -5,8 +5,8 @@ import { useState } from "react";
 const TOPICS = [
   "I'm a student seeking mentorship",
   "I'd like to volunteer as a mentor",
+  "I'd like to join a program",
   "Partnership or collaboration",
-  "Donation or 80G receipt query",
   "Something else",
 ];
 

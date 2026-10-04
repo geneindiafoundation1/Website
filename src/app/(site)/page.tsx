@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { CountUp } from "@/components/CountUp";
 import { HeroGlobe } from "@/components/HeroGlobe";
 import { MissionOrbit } from "@/components/MissionOrbit";
 import { PostCard } from "@/components/PostCard";
+import { ProgramCard } from "@/components/ProgramCard";
 import { StoryStairs } from "@/components/StoryStairs";
-import { getPosts } from "@/lib/content";
+import { getPosts, getPrograms } from "@/lib/content";
+
+// Static until the admin panel changes its content (revalidatePath) - no timed rebuilds.
+export const revalidate = false;
 
 const ACRONYM = [
   ["G", "Global - mentors from across the world"],
@@ -36,13 +39,14 @@ const PILLARS = [
 ];
 
 export default async function HomePage() {
-  const posts = (await getPosts()).slice(0, 3);
+  const [allPosts, programs] = await Promise.all([getPosts(), getPrograms()]);
+  const posts = allPosts.slice(0, 3);
 
   return (
     <>
       <div className="hero">
         <div className="wrap hero-in">
-          <div className="hero-seq">
+          <div>
             <p className="eyebrow">Global Education and Networking for Excellence</p>
             <h1>
               Talent is everywhere.
@@ -55,10 +59,10 @@ export default async function HomePage() {
               structured, volunteer-led mentorship.
             </p>
             <div className="cta-row">
-              <Link className="btn btn-primary btn-lg" href="/donate">
-                Support a mentee
+              <Link prefetch={false} className="btn btn-primary btn-lg" href="/contact">
+                Volunteer as a mentor
               </Link>
-              <Link className="btn btn-ghost btn-lg" href="/about">
+              <Link prefetch={false} className="btn btn-ghost btn-lg" href="/about">
                 Read our story
               </Link>
             </div>
@@ -86,7 +90,8 @@ export default async function HomePage() {
             {STATS.map((stat) => (
               <div className="stat" key={stat.label}>
                 <b>
-                  <CountUp value={stat.value} suffix={stat.suffix} />
+                  {stat.value}
+                  {stat.suffix}
                 </b>
                 <span>{stat.label}</span>
               </div>
@@ -96,7 +101,7 @@ export default async function HomePage() {
       </div>
 
       <section className="wrap">
-        <div className="mission-in" data-reveal>
+        <div className="mission-in">
           <div className="sec-head" style={{ marginBottom: 0 }}>
             <p className="eyebrow">Our mission</p>
             <h2>
@@ -112,7 +117,7 @@ export default async function HomePage() {
           <MissionOrbit />
         </div>
 
-        <div className="grid-3 stagger" data-reveal>
+        <div className="grid-3">
           {PILLARS.map((p) => (
             <div className="card" key={p.title}>
               <h3>{p.title}</h3>
@@ -122,9 +127,28 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {programs.length ? (
+        <section className="wrap">
+          <div className="sec-head">
+            <p className="eyebrow">Flagship programs</p>
+            <h2>Learn from those who have walked the path.</h2>
+          </div>
+          <div className="program-grid">
+            {programs.map((program) => (
+              <ProgramCard key={program.id} program={program} />
+            ))}
+          </div>
+          <div className="cta-row" style={{ marginTop: "2rem" }}>
+            <Link prefetch={false} className="btn btn-ghost" href="/programs">
+              See all programs
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       <div className="band">
         <section className="wrap">
-          <div className="story-in" data-reveal>
+          <div className="story-in">
             <StoryStairs />
 
             <div className="story-copy">
@@ -152,7 +176,7 @@ export default async function HomePage() {
                 </p>
               </div>
               <div>
-                <Link className="btn btn-primary" href="/about">
+                <Link prefetch={false} className="btn btn-primary" href="/about">
                   Continue reading
                 </Link>
               </div>
@@ -162,11 +186,11 @@ export default async function HomePage() {
       </div>
 
       <section className="wrap">
-        <div className="sec-head" data-reveal>
+        <div className="sec-head">
           <p className="eyebrow">From the blog</p>
           <h2>Stories &amp; updates</h2>
         </div>
-        <div className="posts stagger" data-reveal>
+        <div className="posts">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -175,21 +199,21 @@ export default async function HomePage() {
 
       <hr className="rule" />
 
-      <section className="wrap center" data-reveal>
-        <p className="eyebrow">Support the foundation</p>
+      <section className="wrap center">
+        <p className="eyebrow">Get involved</p>
         <h2 style={{ fontSize: "var(--step-3)", maxWidth: "20ch" }}>
-          Every contribution goes directly to the foundation.
+          Share what you know with someone who needs it.
         </h2>
         <p className="lede">
-          No payment gateway, no card handling, and no transaction fees - 100% of what you give
-          reaches the students we mentor.
+          Volunteer your time as a mentor, or reach out if you&rsquo;re a student looking for
+          guidance - we&rsquo;ll help you find the right match.
         </p>
         <div className="cta-row">
-          <Link className="btn btn-primary btn-lg" href="/donate">
-            Donate now
-          </Link>
-          <Link className="btn btn-ghost btn-lg" href="/contact">
+          <Link prefetch={false} className="btn btn-primary btn-lg" href="/contact">
             Volunteer as a mentor
+          </Link>
+          <Link prefetch={false} className="btn btn-ghost btn-lg" href="/contact">
+            Find a mentor
           </Link>
         </div>
       </section>

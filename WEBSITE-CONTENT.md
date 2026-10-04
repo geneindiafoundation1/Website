@@ -6,7 +6,7 @@ Please review and mark any changes directly in this document.
 **Site:** geneindiafoundation.org
 **Last reviewed:** 7 August 2026
 
-Pages covered: Home · About · Team · Blogs · Contact · Donate · Header · Footer
+Pages covered: Home · About · Programs · Team · Blogs · Contact · Header · Footer
 
 ---
 
@@ -35,8 +35,10 @@ sciences, humanities, engineering, IT, and social sciences.
 
 ### Header (top of every page)
 
-Menu: Home · About · Team · Blogs · Contact
-Buttons: **Team login** · **Donate** · light/dark theme toggle
+Menu: Home · About · Programs · Team · Blogs · Contact
+Buttons: light/dark theme toggle
+
+The admin panel has no link on the site - the team signs in at geneindiafoundation.org/admin.
 
 ### Footer (bottom of every page)
 
@@ -49,8 +51,9 @@ non-religious foundation mentoring students across India.
 |---|---|---|
 | Home | Privacy Policy | Contact us |
 | About | Terms & Conditions | Volunteer as a mentor |
-| Team | Refund & Cancellation | Donate |
-| Blogs | | info@geneindiafoundation.org |
+| Programs | | info@geneindiafoundation.org |
+| Team | | |
+| Blogs | | |
 
 © 2026 GENE-INDIA FOUNDATION. All rights reserved.
 Made with ♥ by Altveen Technologies Pvt Ltd
@@ -72,7 +75,7 @@ GENE-INDIA Foundation connects experienced professionals across the globe with
 students and young professionals in every state and Union Territory of India -
 through structured, volunteer-led mentorship.
 
-**Buttons:** Support a mentee · Read our story
+**Buttons:** Volunteer as a mentor · Read our story
 
 ### "What GENE stands for" card
 
@@ -136,13 +139,13 @@ build a community that created it - one student, one mentor, one conversation at
 
 ### Closing section
 
-**Support the foundation**
-Every contribution goes directly to the foundation.
+**Get involved**
+Share what you know with someone who needs it.
 
-No payment gateway, no card handling, and no transaction fees - 100% of what you give
-reaches the students we mentor.
+Volunteer your time as a mentor, or reach out if you're a student looking for guidance -
+we'll help you find the right match.
 
-**Buttons:** Donate now · Volunteer as a mentor
+**Buttons:** Volunteer as a mentor · Find a mentor
 
 ---
 
@@ -274,10 +277,62 @@ collaborations, and innovation for the benefit of society.
 **Be part of it**
 Every door opened begins with someone willing to open it.
 
-Whether you mentor a student, share your expertise, or support the Foundation directly -
-you become part of the bridge we're building.
+Whether you mentor a student or share your expertise - you become part of the bridge
+we're building.
 
-**Buttons:** Support a mentee · Volunteer as a mentor
+**Buttons:** Volunteer as a mentor · Meet the team
+
+---
+
+## Programs page
+
+**Eyebrow:** What we run
+**Headline:** Flagship programs
+
+Volunteer-led programs that bring students, parents and accomplished professionals together,
+open to participants from every state and Union Territory of India.
+
+Each program shows its poster, description and key details. Programs are added and edited
+from **Admin → Programs**. The home page shows them under
+**Flagship programs - Learn from those who have walked the path.**
+
+### The Grand-Round Lecture Series
+
+*Flagship program · Monthly lectures*
+**Extraordinary journeys, in their own words.**
+
+Every month, we bring you face to face with highly accomplished and remarkable people: the
+scientists, doctors, engineers, and artists who are shaping our world. They share not just what
+they achieved, but how they got there: the learnings and turning points, the setbacks and the
+choices that made them.
+
+Come for the ideas, stay for the stories, and leave inspired to write your own. Through these
+interactions, carve your own path to a very successful career.
+
+Tags: Scientists · Doctors · Engineers · Artists · Innovators
+When: Once a month · Where: Live on Zoom · Also streaming: Facebook Live
+
+### Parents as Pathfinders
+
+*Flagship program · A family mentorship program*
+**Guide with confidence. Grow together.**
+
+Every child's future begins early in life, and at home. This program gives parents the
+knowledge, tools and confidence to guide their children through today's fast-changing world of
+careers and opportunities, through curated expert-led sessions, personal mentoring and a
+supportive community of families.
+
+For: Parent + child pairs · Grades: 1–5
+
+**What you'll gain**
+1. See the full map of possibilities - Emerging careers in science, medicine, technology, arts, humanities, design and beyond.
+2. Navigate the big decisions - Subject choices, entrance exams, scholarships and admissions.
+3. Nurture your child's strengths - Spot their talents and support their interests, without pressure.
+4. Talk openly, together - Build conversations about goals, setbacks and wellbeing.
+5. Join a community - Connect with mentors and families on the same journey.
+
+**Who will benefit most:** Parents whose children are in the very early stages of their academic
+journey, mentored together as parent–student pairs in Grades 1–5.
 
 ---
 
@@ -445,8 +500,8 @@ organisation exploring a partnership - write to us.
 - What is this about? - dropdown:
   - I'm a student seeking mentorship
   - I'd like to volunteer as a mentor
+  - I'd like to join a program
   - Partnership or collaboration
-  - Donation or 80G receipt query
   - Something else
 - Message *(required)*
 - Button: **Send message**
@@ -465,51 +520,3 @@ Every submission is emailed to the foundation and also stored in the admin panel
 
 > GENE-INDIA Foundation is apolitical and non-religious. We welcome participants from every
 > state and Union Territory of India.
-
----
-
-## 6. Donate page
-
-**Eyebrow:** Support the cause
-**Headline:** 100% of your donation reaches the foundation
-
-Donations go directly to the foundation's bank account or UPI. There is no payment gateway and
-no card handling, which means zero transaction fees.
-
-### Step 1 - Send your contribution
-
-**Currently showing: "Coming shortly"**
-
-> **Our donation account is being opened.**
->
-> The foundation's bank account and UPI ID will be published here as soon as they are active.
-> Until then, please write to us and we will get back to you personally about how to contribute.
-
-**Button:** Email info@geneindiafoundation.org
-
-*Once the bank details are provided, this section will instead show: account name, account
-number, IFSC, bank & branch, UPI ID, and a UPI QR code. **We need these details plus the QR
-image from you.** No placeholder account numbers have been published.*
-
-### Step 2 - Tell us it's you *(hidden until the bank account is live)*
-
-**Donor details** - After paying, fill this in so we can thank you and issue a receipt.
-
-Fields: Full name · Email address · Amount (₹) · Paid via (UPI / Bank transfer) ·
-Transaction / UTR reference · Message (optional)
-Button: **Confirm my donation**
-
-### Three reassurance points
-
-**Zero fees**
-No payment gateway means no transaction charges - the foundation keeps every rupee you give.
-
-**Self-reported, then verified**
-Your form triggers a thank-you email immediately. Each amount is verified against the bank
-statement before a receipt is issued.
-
-**Where it goes**
-Directly into running volunteer-led mentorship programs for students across India.
-
-*Footnote:* Donations are voluntary contributions. Please read our Refund & Cancellation Policy
-and Terms & Conditions before donating.

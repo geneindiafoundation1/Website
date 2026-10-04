@@ -14,6 +14,14 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Images shipped with the site. Let browsers keep them for a week, so a
+        // returning visitor doesn't download them again - every request and byte
+        // Netlify serves costs credits. Replace an image under a NEW file name if
+        // it must change sooner. (Uploaded images live on Supabase, not here.)
+        source: "/:dir(blog|team|programs|brand)/:file([^/]+\\.(?:jpg|jpeg|png|webp|svg))",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
+      },
+      {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },

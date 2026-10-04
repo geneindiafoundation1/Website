@@ -44,22 +44,9 @@ create table if not exists public.messages (
   created_at  timestamptz not null default now()
 );
 
-create table if not exists public.donations (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null,
-  email       text not null,
-  amount      numeric(12, 2) not null check (amount > 0),
-  mode        text not null default 'UPI',
-  reference   text,
-  note        text,
-  verified    boolean not null default false,
-  created_at  timestamptz not null default now()
-);
-
 create index if not exists posts_published_idx on public.posts (published, published_at desc);
 create index if not exists team_sort_idx on public.team_members (published, sort_order);
 create index if not exists messages_created_idx on public.messages (created_at desc);
-create index if not exists donations_created_idx on public.donations (created_at desc);
 
 -- `updated_at` maintained by trigger so the app never has to set it.
 create or replace function public.touch_updated_at()
@@ -80,12 +67,11 @@ create trigger team_touch before update on public.team_members
 
 -- ------------------------- row-level security -------------------------------
 -- The public may read published content and submit forms. Only signed-in staff
--- may read messages or donations, or change anything.
+-- may read messages, or change anything.
 
 alter table public.posts         enable row level security;
 alter table public.team_members  enable row level security;
 alter table public.messages      enable row level security;
-alter table public.donations     enable row level security;
 
 drop policy if exists "posts are publicly readable when published" on public.posts;
 create policy "posts are publicly readable when published"
@@ -116,21 +102,6 @@ drop policy if exists "staff read messages" on public.messages;
 create policy "staff read messages"
   on public.messages for select to authenticated
   using (true);
-
-drop policy if exists "anyone may report a donation" on public.donations;
-create policy "anyone may report a donation"
-  on public.donations for insert to anon, authenticated
-  with check (true);
-
-drop policy if exists "staff read donations" on public.donations;
-create policy "staff read donations"
-  on public.donations for select to authenticated
-  using (true);
-
-drop policy if exists "staff verify donations" on public.donations;
-create policy "staff verify donations"
-  on public.donations for update to authenticated
-  using (true) with check (true);
 
 -- ---------------------------- storage bucket --------------------------------
 -- Cover images and team photographs uploaded from the admin panel.

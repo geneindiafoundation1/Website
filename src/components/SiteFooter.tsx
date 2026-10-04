@@ -36,9 +36,9 @@ export function SiteFooter() {
           <div>
             <h4>Explore</h4>
             <ul>
-              {site.nav.slice(0, 4).map((item) => (
+              {site.nav.slice(0, 5).map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link prefetch={false} href={item.href}>{item.label}</Link>
                 </li>
               ))}
             </ul>
@@ -48,13 +48,10 @@ export function SiteFooter() {
             <h4>Legal</h4>
             <ul>
               <li>
-                <Link href="/privacy">Privacy Policy</Link>
+                <Link prefetch={false} href="/privacy">Privacy Policy</Link>
               </li>
               <li>
-                <Link href="/terms">Terms &amp; Conditions</Link>
-              </li>
-              <li>
-                <Link href="/refund-policy">Refund &amp; Cancellation</Link>
+                <Link prefetch={false} href="/terms">Terms &amp; Conditions</Link>
               </li>
             </ul>
           </div>
@@ -63,13 +60,10 @@ export function SiteFooter() {
             <h4>Get involved</h4>
             <ul>
               <li>
-                <Link href="/contact">Contact us</Link>
+                <Link prefetch={false} href="/contact">Contact us</Link>
               </li>
               <li>
-                <Link href="/contact">Volunteer as a mentor</Link>
-              </li>
-              <li>
-                <Link href="/donate">Donate</Link>
+                <Link prefetch={false} href="/contact">Volunteer as a mentor</Link>
               </li>
               <li>
                 <a href={`mailto:${site.email}`}>{site.email}</a>
@@ -97,7 +91,10 @@ export function SiteFooter() {
                 d="M12 21s-7.5-4.7-9.6-9.2C.7 8.2 2.5 4.5 6 3.7c2.2-.5 4.4.5 6 2.4 1.6-1.9 3.8-2.9 6-2.4 3.5.8 5.3 4.5 3.6 8.1C19.5 16.3 12 21 12 21Z"
               />
             </svg>
-            by Altveen Technologies Pvt Ltd
+            by{" "}
+            <a href="https://altveentechnologies.com" target="_blank" rel="noopener">
+              Altveen Technologies Pvt Ltd
+            </a>
           </span>
         </div>
       </div>

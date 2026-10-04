@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SetupNotice } from "../../SetupNotice";
-import { NoPermission } from "../../NoPermission";
 import { saveMember } from "../../actions";
 import { ImageUpload } from "../../ImageUpload";
-import { canEdit } from "@/lib/admin-role";
 import { supabaseEnabled } from "@/lib/supabase/config";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { Member } from "@/lib/types";
@@ -13,8 +11,6 @@ export const dynamic = "force-dynamic";
 
 export default async function MemberEditor({ params }: { params: Promise<{ id: string }> }) {
   if (!supabaseEnabled) return <SetupNotice />;
-  if (!(await canEdit()))
-    return <NoPermission what="add or edit team members" back="/admin/team" backLabel="Back to team" />;
 
   const { id } = await params;
   const isNew = id === "new";

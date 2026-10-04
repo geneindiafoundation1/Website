@@ -47,3 +47,17 @@ export async function getServerSupabase() {
     },
   });
 }
+
+/**
+ * Cookie-less anonymous client for public pages. Reading cookies makes Next.js
+ * render a page on every request, which on Netlify means a serverless function
+ * - and compute credits - for each visit. Public content never needs a session,
+ * so pages built with this client stay static and are only rebuilt when the
+ * admin panel saves a change (revalidatePath) or the revalidate window passes.
+ */
+export function getPublicSupabase() {
+  if (!supabaseEnabled) return null;
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    cookies: { getAll: () => [], setAll: () => {} },
+  });
+}
