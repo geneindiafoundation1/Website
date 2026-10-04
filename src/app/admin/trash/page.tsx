@@ -1,7 +1,8 @@
 import { SetupNotice } from "../SetupNotice";
 import { ConfirmSubmit } from "../ConfirmSubmit";
 import { purgeItem, restoreItem } from "../actions";
-import { formatDateTime } from "@/lib/content";
+import { formatDate, formatDateTime } from "@/lib/content";
+import { TRASH_DAYS, purgeDate } from "@/lib/trash";
 import { supabaseEnabled } from "@/lib/supabase/config";
 import { getServerSupabase } from "@/lib/supabase/server";
 
@@ -57,7 +58,7 @@ export default async function AdminTrash() {
     <>
       <div className="admin-head">
         <h1>Trash</h1>
-        <p className="hint">Deleted items are kept here and can be restored</p>
+        <p className="hint">Deleted items can be restored for {TRASH_DAYS} days</p>
       </div>
 
       <div className="rows">
@@ -69,7 +70,8 @@ export default async function AdminTrash() {
               <div>
                 <div className="row-title">{item.label}</div>
                 <div className="hint">
-                  {item.kind} · deleted {formatDateTime(item.deleted_at)}
+                  {item.kind} · deleted {formatDateTime(item.deleted_at)} · deleted forever after{" "}
+                  {formatDate(purgeDate(item.deleted_at).toISOString())}
                 </div>
               </div>
               <span className="pill">Deleted</span>
@@ -99,8 +101,9 @@ export default async function AdminTrash() {
 
       {items.length > 0 ? (
         <p className="hint" style={{ marginTop: "1rem" }}>
-          Items stay here indefinitely and can be restored at any time. Delete forever destroys a
-          record outright - there is no way to get it back.
+          Items stay here for {TRASH_DAYS} days and can be restored until then, after which they
+          are deleted forever automatically. Delete forever does it now - there is no way to get
+          it back.
         </p>
       ) : null}
     </>

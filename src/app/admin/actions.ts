@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/admin-role";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { removeUnusedImages } from "./media-cleanup";
 
 const str = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
 
@@ -12,6 +13,20 @@ const str = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
  * rebuilds - those cost Netlify compute). So every save, delete, and restore
  * must refresh each public page that shows the content it touched.
  */
+/**
+ * Clears uploaded images nothing uses any more (see media-cleanup.ts). Runs
+ * after saves and permanent deletes - the moments an image can become unused.
+ * Housekeeping only: a failure is logged and never blocks the save itself.
+ */
+async function tidyImages(supabase: Awaited<ReturnType<typeof requireSupabase>>) {
+  try {
+    const removed = await removeUnusedImages(supabase);
+    if (removed) console.info(`media cleanup: removed ${removed} unused file(s)`);
+  } catch (error) {
+    console.error("media cleanup skipped:", error instanceof Error ? error.message : error);
+  }
+}
+
 function refreshPosts() {
   revalidatePath("/");
   revalidatePath("/blog");
@@ -127,6 +142,7 @@ export async function savePost(formData: FormData) {
   if (error) fail(error);
 
   refreshPosts();
+  await tidyImages(supabase);
   redirect("/admin/posts");
 }
 
@@ -177,6 +193,7 @@ export async function saveMember(formData: FormData) {
   if (error) fail(error);
 
   refreshTeam();
+  await tidyImages(supabase);
   redirect("/admin/team");
 }
 
@@ -236,6 +253,7 @@ export async function saveProgram(formData: FormData) {
   if (error) fail(error);
 
   refreshPrograms();
+  await tidyImages(supabase);
   redirect("/admin/programs");
 }
 
@@ -338,6 +356,7 @@ export async function purgeItem(formData: FormData) {
   if (error) fail(error);
   if (!data || data.length === 0) fail(REFUSED);
 
+  await tidyImages(supabase);
   revalidatePath("/admin/trash");
   revalidatePath("/admin/activity");
 }
