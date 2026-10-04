@@ -38,7 +38,7 @@ export function ProgramFeature({ program }: { program: Program }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={program.poster_url}
-              srcSet={responsiveSrcSet(program.poster_url, 600)}
+              srcSet={responsiveSrcSet(program.poster_url, 600, 1000)}
               sizes="(max-width: 760px) min(92vw, 480px), 470px"
               alt={`${program.title} poster`}
               loading="lazy"

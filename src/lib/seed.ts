@@ -182,7 +182,7 @@ export const seedPrograms: Program[] = [
     tagline: "Extraordinary journeys, in their own words.",
     summary:
       "Every month, we bring you face to face with highly accomplished and remarkable people: the scientists, doctors, engineers, and artists who are shaping our world. They share not just what they achieved, but how they got there: the learnings and turning points, the setbacks and the choices that made them.\n\nCome for the ideas, stay for the stories, and leave inspired to write your own. Through these interactions, carve your own path to a very successful career.",
-    poster_url: "/programs/grand-round-lecture-series.jpg",
+    poster_url: "/programs/grand-round-lecture-series.webp",
     details: ["When: Once a month", "Where: Live on Zoom", "Also streaming: Facebook Live"],
     highlights: [],
     tags: ["Scientists", "Doctors", "Engineers", "Artists", "Innovators"],
@@ -198,7 +198,7 @@ export const seedPrograms: Program[] = [
     tagline: "Guide with confidence. Grow together.",
     summary:
       "Every child's future begins early in life, and at home. This program gives parents the knowledge, tools and confidence to guide their children through today's fast-changing world of careers and opportunities, through curated expert-led sessions, personal mentoring and a supportive community of families.",
-    poster_url: "/programs/parents-as-pathfinders.jpg",
+    poster_url: "/programs/parents-as-pathfinders.webp",
     details: ["For: Parent + child pairs", "Grades: 1–5"],
     highlights: [
       "See the full map of possibilities: Emerging careers in science, medicine, technology, arts, humanities, design and beyond.",
